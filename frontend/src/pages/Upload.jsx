@@ -90,7 +90,6 @@ const Upload = () => {
                 <option>Movies</option>
                 <option>TV Shows</option>
                 <option>Anime</option>
-                <option>4K Movies</option>
               </select>
             </div>
             
