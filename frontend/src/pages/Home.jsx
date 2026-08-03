@@ -8,6 +8,7 @@ const Home = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
+  const [heroIndex, setHeroIndex] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +20,14 @@ const Home = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (videos.length <= 1) return;
+    const interval = setInterval(() => {
+      setHeroIndex(prev => (prev + 1) % videos.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [videos]);
 
   const fetchVideos = async () => {
     try {
@@ -72,7 +81,7 @@ const Home = () => {
     );
   }
 
-  const heroVideo = videos.length > 0 ? videos[0] : null;
+  const heroVideo = videos.length > 0 ? videos[heroIndex] : null;
 
   return (
     <div className="min-h-screen bg-[#141414] text-white font-sans overflow-x-hidden">
@@ -99,7 +108,13 @@ const Home = () => {
 
       {/* Hero Billboard */}
       {heroVideo ? (
-        <div className="relative w-full h-[85vh] flex items-center">
+        <motion.div 
+          key={heroIndex}
+          initial={{ opacity: 0.5 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="relative w-full h-[85vh] flex items-center"
+        >
           <div className="absolute inset-0 w-full h-full">
             {heroVideo.thumbnail ? (
               <img src={heroVideo.thumbnail} alt="Hero" className="w-full h-full object-cover" />
@@ -127,13 +142,9 @@ const Home = () => {
                 <Play className="w-5 h-5 fill-current" />
                 Play
               </button>
-              <button className="flex items-center gap-2 px-5 py-2 bg-gray-500/70 text-white rounded font-bold text-base md:text-lg hover:bg-gray-500/50 transition-colors">
-                <Info className="w-5 h-5" />
-                More Info
-              </button>
             </div>
           </div>
-        </div>
+        </motion.div>
       ) : (
         <div className="w-full h-[60vh] flex items-center justify-center pt-20">
           <p className="text-xl text-white/50">Your library is empty. Go to Admin to add videos.</p>
