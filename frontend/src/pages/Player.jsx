@@ -36,6 +36,7 @@ const Player = () => {
   const [showControls, setShowControls] = useState(true);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(true);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -204,8 +205,18 @@ const Player = () => {
         onEnded={() => setIsPlaying(false)}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        onWaiting={() => setIsBuffering(true)}
+        onPlaying={() => { setIsPlaying(true); setIsBuffering(false); }}
+        onCanPlay={() => setIsBuffering(false)}
         autoPlay
       />
+
+      {/* Buffering Spinner */}
+      {isBuffering && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(229,9,20,0.5)]"></div>
+        </div>
+      )}
 
       {/* Top Bar (Title & Back Button) */}
       <div className={`absolute top-0 left-0 w-full p-6 bg-gradient-to-b from-black/80 to-transparent z-10 flex items-center gap-4 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
