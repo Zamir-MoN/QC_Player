@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { motion } from 'framer-motion';
-import { FileVideo, Trash2, Edit2, RefreshCw, Image } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FileVideo, Trash2, Edit2, RefreshCw, Image, X, Save } from 'lucide-react';
 
 const Library = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingFile, setEditingFile] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editThumbnail, setEditThumbnail] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const fetchLibrary = async () => {
     setLoading(true);
@@ -39,31 +43,49 @@ const Library = () => {
     }
   };
 
-  const handleRename = async (filename) => {
-    const newName = window.prompt(`Enter new name for ${filename}:`, filename);
-    if (!newName || newName === filename) return;
-    try {
-      const token = localStorage.getItem('token');
-      await axios.put(`/api/library/${encodeURIComponent(filename)}`, { newName }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchLibrary();
-    } catch (err) {
-      alert('Failed to rename file');
-    }
+  const openEditModal = (file) => {
+    setEditingFile(file);
+    setEditName(file.filename);
+    setEditThumbnail(file.thumbnail || '');
   };
 
-  const handleThumbnail = async (filename, currentThumbnail) => {
-    const thumbnail = window.prompt(`Enter image URL for ${filename} (leave blank to remove):`, currentThumbnail || '');
-    if (thumbnail === null || thumbnail === currentThumbnail) return;
+  const closeEditModal = () => {
+    setEditingFile(null);
+    setEditName('');
+    setEditThumbnail('');
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!editName.trim()) return;
+    setIsSaving(true);
+    
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`/api/library/${encodeURIComponent(filename)}/thumbnail`, { thumbnail }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      let targetFilename = editingFile.filename;
+
+      // 1. Handle Rename
+      if (editName !== editingFile.filename) {
+        await axios.put(`/api/library/${encodeURIComponent(editingFile.filename)}`, { newName: editName }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        targetFilename = editName; // Update target for thumbnail request
+      }
+
+      // 2. Handle Thumbnail
+      if (editThumbnail !== (editingFile.thumbnail || '')) {
+        await axios.put(`/api/library/${encodeURIComponent(targetFilename)}/thumbnail`, { thumbnail: editThumbnail }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+
+      closeEditModal();
       fetchLibrary();
     } catch (err) {
-      alert('Failed to update thumbnail');
+      console.error(err);
+      alert('Failed to save changes');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -105,18 +127,11 @@ const Library = () => {
                   <Trash2 size={18} />
                 </button>
                 <button 
-                  onClick={() => handleRename(file.filename)}
+                  onClick={() => openEditModal(file)}
                   className="p-2 bg-accent/80 hover:bg-accent rounded-full text-white transition-colors shadow-lg"
-                  title="Rename"
+                  title="Edit File"
                 >
                   <Edit2 size={18} />
-                </button>
-                <button 
-                  onClick={() => handleThumbnail(file.filename, file.thumbnail)}
-                  className="p-2 bg-green-500/80 hover:bg-green-500 rounded-full text-white transition-colors shadow-lg"
-                  title="Update Thumbnail"
-                >
-                  <Image size={18} />
                 </button>
               </div>
             </div>
@@ -139,6 +154,82 @@ const Library = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      <AnimatePresence>
+        {editingFile && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={closeEditModal}
+            ></motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg bg-[#1f2026] border border-white/10 rounded-2xl shadow-2xl p-6 overflow-hidden"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold">Edit Media Info</h3>
+                <button onClick={closeEditModal} className="text-gray-400 hover:text-white transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSave} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-300">File Name</label>
+                  <input 
+                    type="text" 
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-300">Thumbnail URL</label>
+                  <input 
+                    type="url" 
+                    value={editThumbnail}
+                    onChange={(e) => setEditThumbnail(e.target.value)}
+                    placeholder="https://example.com/poster.jpg"
+                    className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Leave blank to use default icon.</p>
+                </div>
+
+                <div className="pt-4 flex gap-3">
+                  <button 
+                    type="button"
+                    onClick={closeEditModal}
+                    className="flex-1 py-3 px-4 rounded-xl border border-white/10 hover:bg-white/5 transition-colors font-medium text-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={isSaving}
+                    className="flex-1 py-3 px-4 rounded-xl bg-accent hover:bg-accent/90 transition-colors font-medium text-white shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
+                  >
+                    {isSaving ? (
+                      <RefreshCw size={18} className="animate-spin" />
+                    ) : (
+                      <Save size={18} />
+                    )}
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
