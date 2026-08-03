@@ -111,10 +111,13 @@ const startDownload = async (req, res) => {
     let finalSourcePath = sourcePath;
     let finalDestFilename = finalFilename;
 
-    // Only attempt conversion if it's a known non-mp4 video format
-    if (finalFilename.match(/\\.(mkv|webm|ts|avi|flv|wmv|m4v)$/i)) {
+    // Attempt conversion on all files that are not already .mp4
+    // FFmpeg is smart enough to detect video files even without an extension.
+    // If it's not a video (like a zip file), it will gracefully fail and fallback to the original file.
+    if (!finalFilename.match(/\\.mp4$/i)) {
       const ffmpegProcess = spawn('ffmpeg', [
         '-y',
+        '-nostdin',
         '-i', sourcePath,
         '-c:v', 'copy',
         '-c:a', 'aac',
