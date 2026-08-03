@@ -44,8 +44,30 @@ const Home = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-[#141414] overflow-hidden">
+        {/* Skeleton Navbar */}
+        <div className="w-full h-20 bg-gradient-to-b from-black/50 to-transparent flex items-center px-4 md:px-12">
+          <div className="w-32 h-8 bg-white/10 rounded animate-pulse"></div>
+        </div>
+        {/* Skeleton Hero */}
+        <div className="w-full h-[85vh] bg-white/5 animate-pulse flex flex-col justify-end pb-32 px-4 md:px-12">
+           <div className="w-2/3 md:w-1/3 h-12 md:h-16 bg-white/10 rounded mb-4"></div>
+           <div className="w-3/4 md:w-1/2 h-4 bg-white/10 rounded mb-2"></div>
+           <div className="w-1/2 md:w-1/3 h-4 bg-white/10 rounded mb-8"></div>
+           <div className="flex gap-3">
+             <div className="w-28 h-10 bg-white/10 rounded"></div>
+             <div className="w-32 h-10 bg-white/10 rounded"></div>
+           </div>
+        </div>
+        {/* Skeleton Carousel */}
+        <div className="px-4 md:px-12 -mt-20 relative z-20">
+           <div className="w-40 h-6 bg-white/10 rounded mb-4 animate-pulse"></div>
+           <div className="flex gap-4 overflow-hidden py-8 px-2">
+             {[1,2,3,4,5].map(i => (
+               <div key={i} className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] aspect-video flex-none bg-white/10 rounded-md animate-pulse"></div>
+             ))}
+           </div>
+        </div>
       </div>
     );
   }
@@ -90,7 +112,7 @@ const Home = () => {
           
           <div className="relative z-10 w-full px-4 md:px-12 pt-32 max-w-2xl">
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold drop-shadow-2xl mb-4 leading-tight">
-              {heroVideo.filename.replace(/\\.[^/.]+$/, "")}
+              {heroVideo.filename.replace(/\.[^/.]+$/, "")}
             </h1>
             <p className="text-sm md:text-base text-white drop-shadow-lg mb-6 line-clamp-3">
               Watch this incredible new release available right now on your personal streaming platform. 
@@ -127,9 +149,9 @@ const Home = () => {
             {/* Scroll Arrows */}
             <button 
               onClick={scrollLeft}
-              className="absolute left-0 top-8 bottom-8 z-40 w-12 bg-black/70 hover:bg-black/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
+              className="absolute left-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-r from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
             >
-              <ChevronLeft className="w-8 h-8 text-white" />
+              <ChevronLeft className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
             </button>
             
             <div 
@@ -171,9 +193,9 @@ const Home = () => {
 
             <button 
               onClick={scrollRight}
-              className="absolute right-0 top-8 bottom-8 z-40 w-12 bg-black/70 hover:bg-black/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
+              className="absolute right-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-l from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
             >
-              <ChevronRight className="w-8 h-8 text-white" />
+              <ChevronRight className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
             </button>
           </div>
         </div>
