@@ -205,9 +205,14 @@ const Player = () => {
         onEnded={() => setIsPlaying(false)}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        onLoadStart={() => setIsBuffering(true)}
         onWaiting={() => setIsBuffering(true)}
+        onSeeking={() => setIsBuffering(true)}
         onPlaying={() => { setIsPlaying(true); setIsBuffering(false); }}
         onCanPlay={() => setIsBuffering(false)}
+        onCanPlayThrough={() => setIsBuffering(false)}
+        onSeeked={() => setIsBuffering(false)}
+        onStalled={() => setIsBuffering(true)}
         autoPlay
       />
 
