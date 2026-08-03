@@ -6,11 +6,10 @@ const Sidebar = () => {
   const location = useLocation();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/upload', label: 'Upload', icon: Upload },
-    { path: '/queue', label: 'Queue', icon: ListVideo },
-    { path: '/library', label: 'Library', icon: Library },
-    { path: '/settings', label: 'Settings', icon: Settings },
+    { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/admin/upload', label: 'Upload', icon: Upload },
+    { path: '/admin/queue', label: 'Queue', icon: ListVideo },
+    { path: '/admin/library', label: 'Library', icon: Library },
   ];
 
   return (

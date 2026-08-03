@@ -7,6 +7,8 @@ import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Queue from './pages/Queue';
 import Library from './pages/Library';
+import Home from './pages/Home';
+import Player from './pages/Player';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -32,27 +34,31 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/player" element={<Player />} />
         <Route path="/login" element={<Login />} />
         
-        <Route path="/" element={
+        {/* Admin Routes */}
+        <Route path="/admin" element={
           <ProtectedRoute>
             <Layout><Dashboard /></Layout>
           </ProtectedRoute>
         } />
         
-        <Route path="/upload" element={
+        <Route path="/admin/upload" element={
           <ProtectedRoute>
             <Layout><Upload /></Layout>
           </ProtectedRoute>
         } />
         
-        <Route path="/queue" element={
+        <Route path="/admin/queue" element={
           <ProtectedRoute>
             <Layout><Queue /></Layout>
           </ProtectedRoute>
         } />
         
-        <Route path="/library" element={
+        <Route path="/admin/library" element={
           <ProtectedRoute>
             <Layout><Library /></Layout>
           </ProtectedRoute>

@@ -27,6 +27,7 @@ router.post('/downloads/start', verifyToken, downloadController.startDownload);
 router.get('/downloads/queue', verifyToken, downloadController.getQueue);
 
 // Library routes
+router.get('/public/library', getLibrary);
 router.get('/library', verifyToken, getLibrary);
 router.delete('/library/:filename', verifyToken, deleteFile);
 router.put('/library/:filename', verifyToken, renameFile);
