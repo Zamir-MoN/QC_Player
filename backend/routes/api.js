@@ -3,7 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const downloadController = require('../controllers/downloadController');
 const { getSystemStatus } = require('../utils/systemStatus');
-const { getLibrary, deleteFile, renameFile } = require('../controllers/libraryController');
+const { getLibrary, deleteFile, renameFile, updateThumbnail } = require('../controllers/libraryController');
 
 // Middleware to verify JWT
 const verifyToken = require('../middleware/authMiddleware');
@@ -31,5 +31,6 @@ router.get('/public/library', getLibrary);
 router.get('/library', verifyToken, getLibrary);
 router.delete('/library/:filename', verifyToken, deleteFile);
 router.put('/library/:filename', verifyToken, renameFile);
+router.put('/library/:filename/thumbnail', verifyToken, updateThumbnail);
 
 module.exports = router;

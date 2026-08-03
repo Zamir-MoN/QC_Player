@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FileVideo, Trash2, Edit2, RefreshCw } from 'lucide-react';
+import { FileVideo, Trash2, Edit2, RefreshCw, Image } from 'lucide-react';
 
 const Library = () => {
   const [files, setFiles] = useState([]);
@@ -53,6 +53,20 @@ const Library = () => {
     }
   };
 
+  const handleThumbnail = async (filename, currentThumbnail) => {
+    const thumbnail = window.prompt(`Enter image URL for ${filename} (leave blank to remove):`, currentThumbnail || '');
+    if (thumbnail === null || thumbnail === currentThumbnail) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`/api/library/${encodeURIComponent(filename)}/thumbnail`, { thumbnail }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchLibrary();
+    } catch (err) {
+      alert('Failed to update thumbnail');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex justify-between items-center mb-8">
@@ -77,7 +91,11 @@ const Library = () => {
           >
             {/* Poster Placeholder */}
             <div className="h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center relative">
-              <FileVideo size={48} className="text-gray-600 group-hover:text-accent transition-colors" />
+              {file.thumbnail ? (
+                <img src={file.thumbnail} alt={file.filename} className="w-full h-full object-cover" />
+              ) : (
+                <FileVideo size={48} className="text-gray-600 group-hover:text-accent transition-colors" />
+              )}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
                 <button 
                   onClick={() => handleDelete(file.filename)}
@@ -92,6 +110,13 @@ const Library = () => {
                   title="Rename"
                 >
                   <Edit2 size={18} />
+                </button>
+                <button 
+                  onClick={() => handleThumbnail(file.filename, file.thumbnail)}
+                  className="p-2 bg-green-500/80 hover:bg-green-500 rounded-full text-white transition-colors shadow-lg"
+                  title="Update Thumbnail"
+                >
+                  <Image size={18} />
                 </button>
               </div>
             </div>

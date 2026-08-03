@@ -76,8 +76,11 @@ const Home = () => {
                 className="group cursor-pointer flex flex-col"
               >
                 <div className="aspect-video bg-card rounded-2xl overflow-hidden relative border border-white/5 shadow-lg group-hover:shadow-accent/20 group-hover:border-accent/50 transition-all duration-300">
-                  {/* Fake Thumbnail Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-card to-background opacity-80"></div>
+                  {video.thumbnail ? (
+                    <img src={video.thumbnail} alt={video.filename} className="w-full h-full object-cover absolute inset-0" />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-card to-background opacity-80"></div>
+                  )}
                   
                   {/* Play Button Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-sm">
