@@ -5,3 +5,6 @@ logs/
 uploads/
 frontend/dist/
 .DS_Store
+Cache/
+Config/
+Movies/
