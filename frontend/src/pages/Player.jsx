@@ -254,7 +254,10 @@ const Player = () => {
             max={duration || 100}
             value={currentTime}
             onChange={handleSeek}
-            className="w-full h-1.5 bg-white/30 rounded-full appearance-none cursor-pointer hover:h-2 transition-all accent-accent"
+            style={{
+              background: `linear-gradient(to right, #E50914 ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.3) ${(currentTime / (duration || 1)) * 100}%)`
+            }}
+            className="w-full h-1.5 rounded-full appearance-none cursor-pointer hover:h-2 transition-all accent-accent [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 hover:[&::-webkit-slider-thumb]:w-4 hover:[&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:rounded-full"
           />
         </div>
 
@@ -286,7 +289,10 @@ const Player = () => {
                 step={0.05}
                 value={isMuted ? 0 : volume}
                 onChange={(e) => handleVolumeChange(e.target.value)}
-                className="w-0 overflow-hidden group-hover/volume:w-24 h-1.5 bg-white/30 rounded-full appearance-none transition-all duration-300 accent-accent"
+                style={{
+                  background: `linear-gradient(to right, #E50914 ${(isMuted ? 0 : volume) * 100}%, rgba(255,255,255,0.3) ${(isMuted ? 0 : volume) * 100}%)`
+                }}
+                className="w-0 overflow-hidden group-hover/volume:w-24 h-1.5 rounded-full appearance-none transition-all duration-300 accent-accent [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:rounded-full"
               />
             </div>
 
