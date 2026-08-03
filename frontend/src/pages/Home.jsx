@@ -11,6 +11,17 @@ const Home = () => {
   const [heroIndex, setHeroIndex] = useState(0);
   const navigate = useNavigate();
 
+  const parseVideoInfo = (filename) => {
+    let cleanName = filename.replace(/\.[^/.]+$/, "");
+    let tag = null;
+    const match = cleanName.match(/ \[([^\]]+)\]$/);
+    if (match && ['HQ', 'HD', '4K'].includes(match[1])) {
+      tag = match[1];
+      cleanName = cleanName.replace(` [${tag}]`, '');
+    }
+    return { cleanName, tag };
+  };
+
   useEffect(() => {
     fetchVideos();
     
@@ -126,8 +137,13 @@ const Home = () => {
           </div>
           
           <div className="relative z-10 w-full px-4 md:px-12 pt-32 max-w-2xl">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold drop-shadow-2xl mb-4 leading-tight">
-              {heroVideo.filename.replace(/\.[^/.]+$/, "")}
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold drop-shadow-2xl mb-4 leading-tight flex items-center gap-4 flex-wrap">
+              {parseVideoInfo(heroVideo.filename).cleanName}
+              {parseVideoInfo(heroVideo.filename).tag && (
+                <span className="text-sm md:text-base px-3 py-1 bg-white/20 backdrop-blur-md rounded-md font-bold text-white border border-white/20 shadow-lg">
+                  {parseVideoInfo(heroVideo.filename).tag}
+                </span>
+              )}
             </h1>
             <p className="text-sm md:text-base text-white drop-shadow-lg mb-6 line-clamp-3">
               Watch this incredible new release available right now on your personal streaming platform. 
@@ -187,15 +203,22 @@ const Home = () => {
                     
                     {/* Hover Info Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                      {parseVideoInfo(video.filename).tag && (
+                        <div className="absolute top-3 right-3">
+                          <span className="px-2 py-1 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold rounded shadow-xl border border-white/10">
+                            {parseVideoInfo(video.filename).tag}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex gap-2 mb-2">
                         <button className="p-2 bg-white rounded-full hover:bg-white/80 transition text-black">
                           <Play className="w-4 h-4 fill-current" />
                         </button>
                       </div>
-                      <h3 className="text-sm font-bold truncate">
-                        {video.filename.replace(/\.[^/.]+$/, "")}
+                      <h3 className="text-sm font-bold truncate drop-shadow-md">
+                        {parseVideoInfo(video.filename).cleanName}
                       </h3>
-                      <p className="text-[10px] font-semibold text-green-500">98% Match</p>
+                      <p className="text-[10px] font-semibold text-green-500 drop-shadow-md">98% Match</p>
                     </div>
                   </div>
                 </div>
