@@ -200,9 +200,47 @@ const Player = () => {
         src={videoUrl}
         className="w-full h-full object-contain cursor-pointer"
         onClick={togglePlay}
-        onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
-        onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
-        onEnded={() => setIsPlaying(false)}
+        onTimeUpdate={() => {
+          if (!videoRef.current) return;
+          const time = videoRef.current.currentTime;
+          setCurrentTime(time);
+          
+          // Save progress to localStorage every ~5 seconds
+          if (Math.floor(time) % 5 === 0 && time > 0) {
+            const dur = videoRef.current.duration;
+            const progressMap = JSON.parse(localStorage.getItem('watch_progress') || '{}');
+            progressMap[filename] = {
+              time,
+              duration: dur,
+              lastWatched: Date.now()
+            };
+            localStorage.setItem('watch_progress', JSON.stringify(progressMap));
+          }
+        }}
+        onLoadedMetadata={() => {
+          if (!videoRef.current) return;
+          const dur = videoRef.current.duration || 0;
+          setDuration(dur);
+          
+          // Restore playback position
+          const progressMap = JSON.parse(localStorage.getItem('watch_progress') || '{}');
+          if (progressMap[filename] && progressMap[filename].time) {
+            const savedTime = progressMap[filename].time;
+            // Only resume if between 5 seconds and 95% complete
+            if (savedTime > 5 && savedTime < dur * 0.95) {
+              videoRef.current.currentTime = savedTime;
+            }
+          }
+        }}
+        onEnded={() => {
+          setIsPlaying(false);
+          // Clear progress when finished
+          const progressMap = JSON.parse(localStorage.getItem('watch_progress') || '{}');
+          if (progressMap[filename]) {
+            delete progressMap[filename];
+            localStorage.setItem('watch_progress', JSON.stringify(progressMap));
+          }
+        }}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onLoadStart={() => setIsBuffering(true)}

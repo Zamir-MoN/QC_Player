@@ -52,13 +52,24 @@ const Home = () => {
     }
   };
 
-  const scrollLeft = () => {
-    const slider = document.getElementById('slider');
+  const getContinueWatching = () => {
+    const progressMap = JSON.parse(localStorage.getItem('watch_progress') || '{}');
+    return videos
+      .filter(v => progressMap[v.filename])
+      .map(v => ({
+        ...v,
+        progressInfo: progressMap[v.filename]
+      }))
+      .sort((a, b) => b.progressInfo.lastWatched - a.progressInfo.lastWatched); // most recently watched first
+  };
+
+  const scrollLeft = (sliderId) => {
+    const slider = document.getElementById(sliderId);
     slider.scrollBy({ left: -window.innerWidth * 0.7, behavior: 'smooth' });
   };
 
-  const scrollRight = () => {
-    const slider = document.getElementById('slider');
+  const scrollRight = (sliderId) => {
+    const slider = document.getElementById(sliderId);
     slider.scrollBy({ left: window.innerWidth * 0.7, behavior: 'smooth' });
   };
 
@@ -167,15 +178,89 @@ const Home = () => {
         </div>
       )}
 
+      {/* Continue Watching Carousel */}
+      {videos.length > 0 && getContinueWatching().length > 0 && (
+        <div className="relative z-20 pb-12 -mt-20 md:-mt-32 px-4 md:px-12">
+          <h2 className="text-lg md:text-xl font-bold mb-2">Continue Watching</h2>
+          
+          <div className="relative group -mx-4 px-4 md:-mx-12 md:px-12">
+            <button 
+              onClick={() => scrollLeft('slider-continue')}
+              className="absolute left-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-r from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
+            >
+              <ChevronLeft className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
+            </button>
+            
+            <div 
+              id="slider-continue"
+              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-8 px-2"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {getContinueWatching().map((video, idx) => {
+                const percent = (video.progressInfo.time / video.progressInfo.duration) * 100;
+                return (
+                  <div 
+                    key={`cw-${idx}`}
+                    onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
+                    className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
+                  >
+                    <div className="w-full h-full rounded-md overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
+                      {video.thumbnail ? (
+                        <img src={video.thumbnail} alt={video.filename} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                          <Play className="w-12 h-12 text-white/20" />
+                        </div>
+                      )}
+                      
+                      {/* Hover Info Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                        {parseVideoInfo(video.filename).tag && (
+                          <div className="absolute top-3 right-3">
+                            <span className="px-2 py-1 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold rounded shadow-xl border border-white/10">
+                              {parseVideoInfo(video.filename).tag}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex gap-2 mb-2">
+                          <button className="p-2 bg-white rounded-full hover:bg-white/80 transition text-black">
+                            <Play className="w-4 h-4 fill-current" />
+                          </button>
+                        </div>
+                        <h3 className="text-sm font-bold truncate drop-shadow-md">
+                          {parseVideoInfo(video.filename).cleanName}
+                        </h3>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="absolute bottom-0 left-0 w-full h-1.5 bg-white/30 backdrop-blur-sm">
+                        <div className="h-full bg-accent" style={{ width: `${percent}%` }}></div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <button 
+              onClick={() => scrollRight('slider-continue')}
+              className="absolute right-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-l from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
+            >
+              <ChevronRight className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Horizontal Carousel */}
       {videos.length > 0 && (
-        <div className="relative z-20 pb-20 -mt-20 md:-mt-32 px-4 md:px-12">
+        <div className={`relative z-20 pb-20 px-4 md:px-12 ${getContinueWatching().length === 0 ? '-mt-20 md:-mt-32' : 'pt-4'}`}>
           <h2 className="text-lg md:text-xl font-bold mb-2">Trending Now</h2>
           
           <div className="relative group -mx-4 px-4 md:-mx-12 md:px-12">
             {/* Scroll Arrows */}
             <button 
-              onClick={scrollLeft}
+              onClick={() => scrollLeft('slider')}
               className="absolute left-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-r from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
             >
               <ChevronLeft className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
@@ -226,7 +311,7 @@ const Home = () => {
             </div>
 
             <button 
-              onClick={scrollRight}
+              onClick={() => scrollRight('slider')}
               className="absolute right-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-l from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
             >
               <ChevronRight className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
