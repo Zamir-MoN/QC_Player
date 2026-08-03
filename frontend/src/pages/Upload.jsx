@@ -8,6 +8,7 @@ const Upload = () => {
   const [url, setUrl] = useState('');
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Movies');
+  const [tag, setTag] = useState('None');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -21,7 +22,8 @@ const Upload = () => {
       await axios.post('/api/downloads/start', {
         url,
         name,
-        category
+        category,
+        tag: tag !== 'None' ? tag : undefined
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -38,6 +40,7 @@ const Upload = () => {
     setUrl('');
     setName('');
     setCategory('Movies');
+    setTag('None');
   };
 
   return (
@@ -92,7 +95,25 @@ const Upload = () => {
                 <option>Anime</option>
               </select>
             </div>
-            
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center gap-2">
+                <Tag size={16} /> Quality Tag
+              </label>
+              <select 
+                className="w-full bg-[#1A1B20] border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white"
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+              >
+                <option value="None">None</option>
+                <option value="HQ">HQ</option>
+                <option value="HD">HD</option>
+                <option value="4K">4K</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center gap-2">
                 <Folder size={16} /> Target Folder
