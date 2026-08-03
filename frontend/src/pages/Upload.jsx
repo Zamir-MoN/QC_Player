@@ -1,8 +1,54 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { motion } from 'framer-motion';
-import { Download, Link as LinkIcon, Folder, Tag } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Download, Link as LinkIcon, Folder, Tag, ChevronDown, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+const CustomSelect = ({ value, options, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="relative">
+      <div 
+        className="w-full bg-[#1A1B20] border border-white/10 rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer transition-all hover:border-accent/50 focus:outline-none text-white shadow-inner shadow-black/20"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="font-medium">{value}</span>
+        <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-accent' : ''}`} />
+      </div>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)}></div>
+            <motion.div 
+              initial={{ opacity: 0, y: -5, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -5, scale: 0.98 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="absolute z-20 w-full mt-2 bg-[#1f2026] border border-white/5 rounded-xl shadow-2xl backdrop-blur-3xl overflow-hidden ring-1 ring-white/10"
+            >
+              <div className="p-1">
+                {options.map(opt => (
+                  <div 
+                    key={opt}
+                    className={`px-3 py-2.5 my-0.5 rounded-lg cursor-pointer transition-all flex items-center gap-2 text-sm font-medium ${value === opt ? 'bg-accent/15 text-accent' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}
+                    onClick={() => {
+                      onChange(opt);
+                      setIsOpen(false);
+                    }}
+                  >
+                    <span className="flex-1">{opt}</span>
+                    {value === opt && <Check size={16} className="text-accent" />}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const Upload = () => {
   const [url, setUrl] = useState('');
@@ -59,7 +105,7 @@ const Upload = () => {
             </label>
             <input 
               type="url" 
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500 shadow-inner shadow-black/20"
               placeholder="https://example.com/movie.mp4"
               value={url} 
               onChange={(e) => setUrl(e.target.value)} 
@@ -73,7 +119,7 @@ const Upload = () => {
             </label>
             <input 
               type="text" 
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500 shadow-inner shadow-black/20"
               placeholder="e.g. Inception (2010).mp4"
               value={name} 
               onChange={(e) => setName(e.target.value)} 
@@ -85,31 +131,22 @@ const Upload = () => {
               <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center gap-2">
                 <Folder size={16} /> Category
               </label>
-              <select 
-                className="w-full bg-[#1A1B20] border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option>Movies</option>
-                <option>TV Shows</option>
-                <option>Anime</option>
-              </select>
+              <CustomSelect 
+                value={category} 
+                onChange={setCategory} 
+                options={['Movies', 'TV Shows', 'Anime']} 
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center gap-2">
                 <Tag size={16} /> Quality Tag
               </label>
-              <select 
-                className="w-full bg-[#1A1B20] border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white"
-                value={tag}
-                onChange={(e) => setTag(e.target.value)}
-              >
-                <option value="None">None</option>
-                <option value="HQ">HQ</option>
-                <option value="HD">HD</option>
-                <option value="4K">4K</option>
-              </select>
+              <CustomSelect 
+                value={tag} 
+                onChange={setTag} 
+                options={['None', 'HQ', 'HD', '4K']} 
+              />
             </div>
           </div>
 
@@ -120,7 +157,7 @@ const Upload = () => {
               </label>
               <input 
                 type="text" 
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-gray-400 cursor-not-allowed"
+                className="w-full bg-[#1A1B20] border border-white/10 rounded-xl px-4 py-3 text-gray-500 cursor-not-allowed shadow-inner shadow-black/20"
                 value="VPS Uploads"
                 disabled
               />
@@ -131,7 +168,7 @@ const Upload = () => {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="flex-1 bg-accent hover:bg-accent/80 text-white font-semibold py-3 rounded-xl transition-colors shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
+              className="flex-1 bg-accent hover:bg-accent/90 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-2 hover:shadow-accent/40 hover:-translate-y-0.5 active:translate-y-0"
             >
               <Download size={20} />
               {isSubmitting ? 'Starting...' : 'Start Download'}
