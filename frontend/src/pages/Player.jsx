@@ -219,7 +219,7 @@ const Player = () => {
       {/* Buffering Spinner */}
       {isBuffering && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(229,9,20,0.5)]"></div>
+          <div className="w-14 h-14 border-[3px] border-accent/20 border-t-accent rounded-full animate-spin"></div>
         </div>
       )}
 
