@@ -35,6 +35,7 @@ io.on('connection', (socket) => {
 
 // Routes
 app.use('/api', apiRoutes);
+app.use('/api/public/media', express.static(process.env.MOUNT_DIR || '/home/ubuntu/QC_Player/Movies/VPS Uploads'));
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
