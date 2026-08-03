@@ -61,10 +61,9 @@ const Home = () => {
             NETFLIX
           </h1>
           <nav className="hidden md:flex gap-4 text-sm font-medium text-white/80">
-            <span className="cursor-pointer font-bold text-white">Home</span>
+            <span className="cursor-pointer font-bold text-white">Movies</span>
             <span className="cursor-pointer hover:text-white/60 transition">TV Shows</span>
-            <span className="cursor-pointer hover:text-white/60 transition">Movies</span>
-            <span className="cursor-pointer hover:text-white/60 transition">New & Popular</span>
+            <span className="cursor-pointer hover:text-white/60 transition">Anime</span>
           </nav>
         </div>
         <button 
