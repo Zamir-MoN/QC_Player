@@ -77,7 +77,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-[#141414] text-white font-sans overflow-x-hidden">
       {/* Navbar */}
-      <header className={`fixed top-0 w-full z-50 transition-colors duration-500 p-4 md:px-12 flex items-center justify-between ${scrolled ? 'bg-[#141414]' : 'bg-transparent'}`}>
+      <header className={`fixed top-0 w-full z-50 transition-all duration-500 p-4 md:px-12 flex items-center justify-between ${scrolled ? 'bg-black/20 backdrop-blur-md shadow-xl' : 'bg-transparent backdrop-blur-sm'}`}>
         <div className="flex items-center gap-8">
           <h1 className="text-3xl font-extrabold text-accent tracking-tighter cursor-pointer">
             NETFLIX
