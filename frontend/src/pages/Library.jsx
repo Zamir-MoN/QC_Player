@@ -39,6 +39,20 @@ const Library = () => {
     }
   };
 
+  const handleRename = async (filename) => {
+    const newName = window.prompt(`Enter new name for ${filename}:`, filename);
+    if (!newName || newName === filename) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`/api/library/${encodeURIComponent(filename)}`, { newName }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchLibrary();
+    } catch (err) {
+      alert('Failed to rename file');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex justify-between items-center mb-8">
@@ -73,6 +87,7 @@ const Library = () => {
                   <Trash2 size={18} />
                 </button>
                 <button 
+                  onClick={() => handleRename(file.filename)}
                   className="p-2 bg-accent/80 hover:bg-accent rounded-full text-white transition-colors shadow-lg"
                   title="Rename"
                 >
