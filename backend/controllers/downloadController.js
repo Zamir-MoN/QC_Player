@@ -99,18 +99,52 @@ const startDownload = async (req, res) => {
       });
     });
 
+    // STEP 3: Convert to MP4 using ffmpeg
+    downloadTask.status = 'Converting';
+    downloadTask.step = 'Converting to MP4';
+    broadcastQueue();
+
+    const sourcePath = path.join(tempDir, finalFilename);
+    const mp4Filename = finalFilename.includes('.') ? finalFilename.replace(/\\.[^/.]+$/, ".mp4") : finalFilename + ".mp4";
+    const convertedPath = path.join(tempDir, mp4Filename);
+    
+    let finalSourcePath = sourcePath;
+    let finalDestFilename = finalFilename;
+
+    // Only attempt conversion if it's a known non-mp4 video format
+    if (finalFilename.match(/\\.(mkv|webm|ts|avi|flv|wmv|m4v)$/i)) {
+      const ffmpegProcess = spawn('ffmpeg', [
+        '-y',
+        '-i', sourcePath,
+        '-c:v', 'copy',
+        '-c:a', 'aac',
+        convertedPath
+      ]);
+
+      await new Promise((resolve) => {
+        ffmpegProcess.on('close', (code) => {
+          if (code === 0) {
+            finalSourcePath = convertedPath;
+            finalDestFilename = mp4Filename;
+          } else {
+            console.warn(`FFmpeg conversion failed with code ${code}. Falling back to original file.`);
+          }
+          resolve();
+        });
+      });
+    }
+
     // STEP 4: Move file
     downloadTask.status = 'Uploading';
     downloadTask.step = 'Moving file to Mount';
     broadcastQueue();
 
-    const sourcePath = path.join(tempDir, finalFilename);
-    const destPath = path.join(mountDir, finalFilename);
+    const destPath = path.join(mountDir, finalDestFilename);
     
     // Ensure mount dir exists (fallback)
     await fs.mkdir(mountDir, { recursive: true }).catch(()=>null);
 
-    const mvProcess = spawn('mv', [sourcePath, destPath]);
+    const mvProcess = spawn('mv', [finalSourcePath, destPath]);
     await new Promise((resolve, reject) => {
       mvProcess.on('close', (code) => {
         if (code === 0) resolve();
