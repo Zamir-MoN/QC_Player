@@ -142,7 +142,7 @@ const Home = () => {
                 <div 
                   key={idx}
                   onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
-                  className="min-w-[250px] md:min-w-[300px] aspect-video relative cursor-pointer rounded-md overflow-visible transition-transform duration-300 hover:scale-[1.15] hover:z-50 origin-center"
+                  className="w-[250px] md:w-[300px] flex-none aspect-video relative cursor-pointer rounded-md overflow-visible transition-transform duration-300 hover:scale-[1.15] hover:z-50 origin-center"
                 >
                   <div className="w-full h-full rounded-md overflow-hidden bg-card border border-white/5 shadow-xl relative group/card">
                     {video.thumbnail ? (
