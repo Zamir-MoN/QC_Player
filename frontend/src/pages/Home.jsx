@@ -121,29 +121,29 @@ const Home = () => {
       {/* Horizontal Carousel */}
       {videos.length > 0 && (
         <div className="relative z-20 pb-20 -mt-20 md:-mt-32 px-4 md:px-12">
-          <h2 className="text-lg md:text-xl font-bold mb-3">Trending Now</h2>
+          <h2 className="text-lg md:text-xl font-bold mb-2">Trending Now</h2>
           
-          <div className="relative group">
+          <div className="relative group -mx-4 px-4 md:-mx-12 md:px-12">
             {/* Scroll Arrows */}
             <button 
               onClick={scrollLeft}
-              className="absolute left-0 top-0 bottom-0 z-30 w-10 bg-black/50 hover:bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
+              className="absolute left-0 top-8 bottom-8 z-40 w-12 bg-black/70 hover:bg-black/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
             >
               <ChevronLeft className="w-8 h-8 text-white" />
             </button>
             
             <div 
               id="slider"
-              className="flex gap-2 overflow-x-auto overflow-y-visible scrollbar-hide scroll-smooth pb-10"
+              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-8 px-2"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {videos.map((video, idx) => (
                 <div 
                   key={idx}
                   onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
-                  className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md overflow-visible transition-transform duration-300 hover:scale-[1.15] hover:z-50 origin-center"
+                  className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
                 >
-                  <div className="w-full h-full rounded-md overflow-hidden bg-card border border-white/5 shadow-xl relative group/card">
+                  <div className="w-full h-full rounded-md overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
                     {video.thumbnail ? (
                       <img src={video.thumbnail} alt={video.filename} className="w-full h-full object-cover" />
                     ) : (
@@ -171,7 +171,7 @@ const Home = () => {
 
             <button 
               onClick={scrollRight}
-              className="absolute right-0 top-0 bottom-0 z-30 w-12 bg-black/50 hover:bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
+              className="absolute right-0 top-8 bottom-8 z-40 w-12 bg-black/70 hover:bg-black/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
             >
               <ChevronRight className="w-8 h-8 text-white" />
             </button>
