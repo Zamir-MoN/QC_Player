@@ -1,13 +1,60 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileVideo, Trash2, Edit2, RefreshCw, Image, X, Save } from 'lucide-react';
+import { FileVideo, Trash2, Edit2, RefreshCw, Image, X, Save, ChevronDown, Check } from 'lucide-react';
+
+const CustomSelect = ({ value, options, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="relative">
+      <div 
+        className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer transition-all hover:border-accent/50 focus:outline-none text-white"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="font-medium">{value}</span>
+        <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-accent' : ''}`} />
+      </div>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)}></div>
+            <motion.div 
+              initial={{ opacity: 0, y: -5, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -5, scale: 0.98 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="absolute z-20 w-full mt-2 bg-[#1f2026] border border-white/5 rounded-xl shadow-2xl backdrop-blur-3xl overflow-hidden ring-1 ring-white/10"
+            >
+              <div className="p-1">
+                {options.map(opt => (
+                  <div 
+                    key={opt}
+                    className={`px-3 py-2.5 my-0.5 rounded-lg cursor-pointer transition-all flex items-center gap-2 text-sm font-medium ${value === opt ? 'bg-accent/15 text-accent' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}
+                    onClick={() => {
+                      onChange(opt);
+                      setIsOpen(false);
+                    }}
+                  >
+                    <span className="flex-1">{opt}</span>
+                    {value === opt && <Check size={16} className="text-accent" />}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const Library = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingFile, setEditingFile] = useState(null);
   const [editName, setEditName] = useState('');
+  const [editTag, setEditTag] = useState('None');
   const [editThumbnail, setEditThumbnail] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -45,13 +92,24 @@ const Library = () => {
 
   const openEditModal = (file) => {
     setEditingFile(file);
-    setEditName(file.filename);
+    
+    // Parse tag from filename if exists (e.g. "Movie [4K].mp4")
+    const match = file.filename.match(/ \[([^\]]+)\](\.[^/.]+)$/);
+    if (match && ['HQ', 'HD', '4K'].includes(match[1])) {
+      setEditTag(match[1]);
+      setEditName(file.filename.replace(` [${match[1]}]`, ''));
+    } else {
+      setEditTag('None');
+      setEditName(file.filename);
+    }
+    
     setEditThumbnail(file.thumbnail || '');
   };
 
   const closeEditModal = () => {
     setEditingFile(null);
     setEditName('');
+    setEditTag('None');
     setEditThumbnail('');
   };
 
@@ -65,11 +123,21 @@ const Library = () => {
       let targetFilename = editingFile.filename;
 
       // 1. Handle Rename
-      if (editName !== editingFile.filename) {
-        await axios.put(`/api/library/${encodeURIComponent(editingFile.filename)}`, { newName: editName }, {
+      let finalNewName = editName;
+      if (editTag !== 'None') {
+        const extMatch = finalNewName.match(/\.[^/.]+$/);
+        if (extMatch) {
+          finalNewName = finalNewName.replace(/\.[^/.]+$/, ` [${editTag}]${extMatch[0]}`);
+        } else {
+          finalNewName = `${finalNewName} [${editTag}]`;
+        }
+      }
+
+      if (finalNewName !== editingFile.filename) {
+        await axios.put(`/api/library/${encodeURIComponent(editingFile.filename)}`, { newName: finalNewName }, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        targetFilename = editName; // Update target for thumbnail request
+        targetFilename = finalNewName; // Update target for thumbnail request
       }
 
       // 2. Handle Thumbnail
@@ -189,6 +257,15 @@ const Library = () => {
                     onChange={(e) => setEditName(e.target.value)}
                     className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500"
                     required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-300">Quality Tag</label>
+                  <CustomSelect 
+                    value={editTag} 
+                    onChange={setEditTag} 
+                    options={['None', 'HQ', 'HD', '4K']} 
                   />
                 </div>
 
