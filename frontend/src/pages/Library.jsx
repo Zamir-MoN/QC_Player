@@ -11,7 +11,7 @@ const Library = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/library', {
+      const res = await axios.get('/api/library', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setFiles(res.data);
@@ -30,7 +30,7 @@ const Library = () => {
     if (!window.confirm(`Are you sure you want to delete ${filename}?`)) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/library/${encodeURIComponent(filename)}`, {
+      await axios.delete(`/api/library/${encodeURIComponent(filename)}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchLibrary();

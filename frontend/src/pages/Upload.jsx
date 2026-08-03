@@ -18,7 +18,7 @@ const Upload = () => {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/downloads/start', {
+      await axios.post('/api/downloads/start', {
         url,
         name,
         category

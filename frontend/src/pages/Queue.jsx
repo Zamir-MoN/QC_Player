@@ -12,7 +12,7 @@ const Queue = () => {
     const fetchQueue = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5000/api/downloads/queue', {
+        const res = await axios.get('/api/downloads/queue', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setQueue(res.data);
@@ -23,7 +23,7 @@ const Queue = () => {
     fetchQueue();
 
     // Socket setup
-    const socket = io('http://localhost:5000');
+    const socket = io('');
     socket.on('queueUpdate', (updatedQueue) => {
       setQueue(updatedQueue);
     });

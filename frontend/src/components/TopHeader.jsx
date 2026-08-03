@@ -15,7 +15,7 @@ const TopHeader = () => {
     const fetchStatus = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5000/api/system-status', {
+        const res = await axios.get('/api/system-status', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStatus(res.data);
