@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Play, Info, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, Info, Settings, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Home = () => {
@@ -9,6 +9,8 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [heroIndex, setHeroIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
 
   const parseVideoInfo = (filename) => {
@@ -119,7 +121,7 @@ const Home = () => {
       {/* Navbar */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-500 p-4 md:px-12 flex items-center justify-between ${scrolled ? 'bg-black/20 backdrop-blur-md shadow-xl' : 'bg-transparent backdrop-blur-sm'}`}>
         <div className="flex items-center gap-8">
-          <h1 className="text-3xl font-extrabold text-accent tracking-tighter cursor-pointer">
+          <h1 className="text-3xl font-extrabold text-accent tracking-tighter cursor-pointer" onClick={() => {setSearchQuery(''); setIsSearchOpen(false);}}>
             QCFlex
           </h1>
           <nav className="hidden md:flex gap-4 text-sm font-medium text-white/80">
@@ -128,16 +130,89 @@ const Home = () => {
             <span className="cursor-pointer hover:text-white/60 transition">Anime</span>
           </nav>
         </div>
-        <button 
-          onClick={() => navigate('/admin')}
-          className="text-white hover:text-white/60 transition-colors"
-          title="Admin Settings"
-        >
-          <Settings className="w-6 h-6" />
-        </button>
+        <div className="flex items-center gap-4">
+          <div className={`flex items-center bg-black/40 border transition-all duration-300 rounded-sm ${isSearchOpen ? 'border-white/80 px-2 py-1' : 'border-transparent px-0 py-0'}`}>
+            <Search 
+              className={`w-5 h-5 cursor-pointer transition-colors ${isSearchOpen ? 'text-white mr-2' : 'text-white hover:text-white/60'}`} 
+              onClick={() => setIsSearchOpen(true)} 
+            />
+            {isSearchOpen && (
+              <>
+                <input 
+                  type="text" 
+                  autoFocus
+                  placeholder="Titles, people, genres"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-transparent border-none outline-none text-sm text-white w-40 md:w-60 placeholder-white/50"
+                />
+                <X 
+                  className="w-4 h-4 cursor-pointer text-white/50 hover:text-white transition-colors" 
+                  onClick={() => {
+                    setIsSearchOpen(false);
+                    setSearchQuery('');
+                  }} 
+                />
+              </>
+            )}
+          </div>
+          <button 
+            onClick={() => navigate('/admin')}
+            className="text-white hover:text-white/60 transition-colors"
+            title="Admin Settings"
+          >
+            <Settings className="w-6 h-6" />
+          </button>
+        </div>
       </header>
 
-      {/* Hero Billboard */}
+      {/* Search Results OR Normal Layout */}
+      {searchQuery ? (
+        <div className="pt-32 px-4 md:px-12 min-h-screen">
+          <h2 className="text-xl md:text-2xl font-bold mb-6 text-white/80">
+            Search results for "{searchQuery}"
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-4 gap-y-12 pb-20">
+            {videos.filter(v => parseVideoInfo(v.filename).cleanName.toLowerCase().includes(searchQuery.toLowerCase())).map((video, idx) => (
+              <div 
+                key={`search-${idx}`}
+                onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
+                className="w-full aspect-video relative cursor-pointer rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 origin-center"
+              >
+                <div className="w-full h-full rounded-xl overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
+                  {video.thumbnail ? (
+                    <img src={video.thumbnail} alt={video.filename} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                      <Play className="w-8 h-8 text-white/20" />
+                    </div>
+                  )}
+                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                    {parseVideoInfo(video.filename).tag && (
+                      <div className="absolute top-2 right-2">
+                        <span className="px-1.5 py-0.5 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold rounded shadow-xl border border-white/10">
+                          {parseVideoInfo(video.filename).tag}
+                        </span>
+                      </div>
+                    )}
+                    <h3 className="text-sm font-bold truncate drop-shadow-md">
+                      {parseVideoInfo(video.filename).cleanName}
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {videos.filter(v => parseVideoInfo(v.filename).cleanName.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+              <div className="col-span-full py-20 text-center text-white/50 text-lg">
+                No matching titles found.
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Hero Billboard */}
       {heroVideo ? (
         <motion.div 
           key={heroIndex}
@@ -341,6 +416,8 @@ const Home = () => {
             </button>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );
