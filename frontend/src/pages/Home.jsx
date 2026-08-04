@@ -135,7 +135,7 @@ const Home = () => {
           initial={{ opacity: 0.5 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          className="relative w-full h-[85vh] flex items-center"
+          className="relative w-full h-[85vh] flex flex-col justify-end pb-32"
         >
           <div className="absolute inset-0 w-full h-full">
             {heroVideo.thumbnail ? (
@@ -147,27 +147,39 @@ const Home = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-[#141414] via-transparent to-transparent opacity-80"></div>
           </div>
           
-          <div className="relative z-10 w-full px-4 md:px-12 pt-32 max-w-2xl">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold drop-shadow-2xl mb-4 leading-tight flex items-center gap-4 flex-wrap">
+          <div className="relative z-10 w-full px-4 md:px-12 max-w-3xl">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold drop-shadow-2xl mb-4 leading-tight line-clamp-3">
               {parseVideoInfo(heroVideo.filename).cleanName}
+            </h1>
+            
+            <div className="flex items-center gap-3 mb-6">
               {parseVideoInfo(heroVideo.filename).tag && (
-                <span className="text-sm md:text-base px-3 py-1 bg-white/20 backdrop-blur-md rounded-md font-bold text-white border border-white/20 shadow-lg">
+                <span className="text-sm font-bold px-2 py-1 bg-white/20 backdrop-blur-md rounded border border-white/20 shadow-lg text-white">
                   {parseVideoInfo(heroVideo.filename).tag}
                 </span>
               )}
-            </h1>
-            <p className="text-sm md:text-base text-white drop-shadow-lg mb-6 line-clamp-3">
+              <span className="text-sm font-semibold text-green-500 drop-shadow-md">98% Match</span>
+              <span className="text-sm font-semibold text-gray-300 drop-shadow-md border border-gray-500 px-1.5 rounded-sm">18+</span>
+            </div>
+
+            <p className="text-sm md:text-lg text-white drop-shadow-lg mb-8 line-clamp-3 max-w-2xl">
               Watch this incredible new release available right now on your personal streaming platform. 
               Enjoy it in premium high definition, completely ad-free.
             </p>
             
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button 
                 onClick={() => navigate(`/player?v=${encodeURIComponent(heroVideo.filename)}`)}
-                className="flex items-center gap-2 px-5 py-2 bg-white text-black rounded font-bold text-base md:text-lg hover:bg-white/80 transition-colors"
+                className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded font-bold text-lg hover:bg-white/80 transition-colors shadow-xl"
               >
-                <Play className="w-5 h-5 fill-current" />
+                <Play className="w-6 h-6 fill-current" />
                 Play
+              </button>
+              <button 
+                className="flex items-center gap-2 px-6 py-2.5 bg-white/20 backdrop-blur-md text-white rounded font-bold text-lg hover:bg-white/30 transition-colors shadow-xl"
+              >
+                <Info className="w-6 h-6" />
+                More Info
               </button>
             </div>
           </div>
