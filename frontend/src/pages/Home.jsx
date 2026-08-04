@@ -214,9 +214,9 @@ const Home = () => {
                   <div 
                     key={`cw-${idx}`}
                     onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
-                    className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
+                    className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
                   >
-                    <div className="w-full h-full rounded-md overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
+                    <div className="w-full h-full rounded-xl overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
                       {video.thumbnail ? (
                         <img src={video.thumbnail} alt={video.filename} className="w-full h-full object-cover" />
                       ) : (
@@ -287,9 +287,9 @@ const Home = () => {
                 <div 
                   key={idx}
                   onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
-                  className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
+                  className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
                 >
-                  <div className="w-full h-full rounded-md overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
+                  <div className="w-full h-full rounded-xl overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
                     {video.thumbnail ? (
                       <img src={video.thumbnail} alt={video.filename} className="w-full h-full object-cover" />
                     ) : (
