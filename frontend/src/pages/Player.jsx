@@ -237,20 +237,29 @@ const Player = () => {
       setIsExtractingAudio(true);
       setShowSettings(false);
       try {
-        const res = await axios.post(`/api/public/media/${encodeURIComponent(filename)}/extract-audio`, {
+        await axios.post(`/api/public/media/${encodeURIComponent(filename)}/extract-audio`, {
           trackId: track.id
         });
         
-        // Refresh tracks to get the new URL
-        const tracksRes = await axios.get(`/api/public/media/${encodeURIComponent(filename)}/tracks`);
-        setAudioTracks(tracksRes.data);
-        
-        setSelectedTrack(track.index);
-        if (videoRef.current) videoRef.current.muted = true;
+        // Start polling every 3 seconds
+        const pollInterval = setInterval(async () => {
+          try {
+            const tracksRes = await axios.get(`/api/public/media/${encodeURIComponent(filename)}/tracks`);
+            const updatedTrack = tracksRes.data.find(t => t.id === track.id);
+            if (updatedTrack && updatedTrack.isExtracted) {
+              clearInterval(pollInterval);
+              setAudioTracks(tracksRes.data);
+              setSelectedTrack(track.index);
+              setIsExtractingAudio(false);
+              if (videoRef.current) videoRef.current.muted = true;
+            }
+          } catch (e) {
+            console.error("Polling failed", e);
+          }
+        }, 3000);
       } catch (err) {
         console.error(err);
-        alert('Failed to extract audio track: ' + (err.response?.data?.details || err.message));
-      } finally {
+        alert('Failed to start audio track extraction: ' + (err.response?.data?.details || err.message));
         setIsExtractingAudio(false);
       }
     }

@@ -195,6 +195,8 @@ const extractAudioTrack = async (req, res) => {
     // Proceed to extract
   }
 
+  const tmpPath = outPath + '.tmp';
+
   try {
     const ffmpeg = spawn('ffmpeg', [
       '-i', filepath,
@@ -202,23 +204,28 @@ const extractAudioTrack = async (req, res) => {
       '-c:a', 'aac',
       '-b:a', '192k',
       '-y',
-      outPath
+      tmpPath
     ]);
 
     let errOutput = '';
     ffmpeg.stderr.on('data', data => errOutput += data.toString());
 
-    await new Promise((resolve, reject) => {
-      ffmpeg.on('close', (code) => {
-        if (code === 0) resolve();
-        else reject(new Error(`ffmpeg exited with code ${code}. Stderr: ${errOutput.substring(errOutput.length - 500)}`));
-      });
+    ffmpeg.on('close', async (code) => {
+      if (code === 0) {
+        try {
+          await fs.rename(tmpPath, outPath);
+        } catch (err) {
+          console.error("Failed to rename tmp file", err);
+        }
+      } else {
+        console.error(`ffmpeg failed with code ${code}. Stderr: ${errOutput}`);
+      }
     });
 
-    res.json({ message: 'Extraction complete', url: `/api/public/media/${encodeURIComponent(outName)}` });
+    res.json({ message: 'Extraction started in background' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to extract audio', details: error.message });
+    res.status(500).json({ error: 'Failed to start audio extraction', details: error.message });
   }
 };
 
