@@ -76,7 +76,7 @@ const Upload = () => {
       navigate('/admin/queue');
     } catch (err) {
       console.error(err);
-      alert('Failed to start download');
+      alert('Failed to start download: ' + (err.response?.data?.error || err.message));
     } finally {
       setIsSubmitting(false);
     }

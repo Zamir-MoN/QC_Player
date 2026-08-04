@@ -32,39 +32,44 @@ const refreshJellyfin = async () => {
 };
 
 const startDownload = async (req, res) => {
-  const { url, name, category, tag } = req.body;
-  if (!url) return res.status(400).json({ error: 'URL is required' });
+  try {
+    const { url, name, category, tag } = req.body;
+    if (!url) return res.status(400).json({ error: 'URL is required' });
 
-  const id = uuidv4();
-  const tempDir = process.env.TEMP_DIR || '/tmp/qcplayer';
-  const mountDir = process.env.MOUNT_DIR || '/home/ubuntu/QC_Player/Movies/VPS Uploads';
-  let finalFilename = name ? name : url.split('/').pop().split('?')[0] || 'downloaded_file';
+    const id = uuidv4();
+    const tempDir = process.env.TEMP_DIR || '/tmp/qcplayer';
+    const mountDir = process.env.MOUNT_DIR || '/home/ubuntu/QC_Player/Movies/VPS Uploads';
+    let finalFilename = name ? name : url.split('/').pop().split('?')[0] || 'downloaded_file';
 
-  // Append quality tag to filename if provided
-  if (tag) {
-    const extMatch = finalFilename.match(/\.[^/.]+$/);
-    if (extMatch) {
-      finalFilename = finalFilename.replace(/\.[^/.]+$/, ` [${tag}]${extMatch[0]}`);
-    } else {
-      finalFilename = `${finalFilename} [${tag}]`;
+    // Append quality tag to filename if provided
+    if (tag) {
+      const extMatch = finalFilename.match(/\.[^/.]+$/);
+      if (extMatch) {
+        finalFilename = finalFilename.replace(/\.[^/.]+$/, ` [${tag}]${extMatch[0]}`);
+      } else {
+        finalFilename = `${finalFilename} [${tag}]`;
+      }
     }
+
+    const downloadTask = {
+      id,
+      url,
+      name: finalFilename,
+      category,
+      status: 'Waiting',
+      progress: '0%',
+      speed: '0 KB/s',
+      eta: 'Unknown',
+      step: 'Initializing'
+    };
+
+    queue.set(id, downloadTask);
+    broadcastQueue();
+    res.json({ message: 'Download added to queue', id });
+  } catch (initError) {
+    console.error('Failed to initialize download:', initError);
+    return res.status(500).json({ error: 'Failed to initialize download: ' + initError.message });
   }
-
-  const downloadTask = {
-    id,
-    url,
-    name: finalFilename,
-    category,
-    status: 'Waiting',
-    progress: '0%',
-    speed: '0 KB/s',
-    eta: 'Unknown',
-    step: 'Initializing'
-  };
-
-  queue.set(id, downloadTask);
-  broadcastQueue();
-  res.json({ message: 'Download added to queue', id });
 
   // Run workflow asynchronously
   try {
