@@ -156,13 +156,6 @@ const Home = () => {
               </>
             )}
           </div>
-          <button 
-            onClick={() => navigate('/admin')}
-            className="text-white hover:text-white/60 transition-colors"
-            title="Admin Settings"
-          >
-            <Settings className="w-6 h-6" />
-          </button>
         </div>
       </header>
 
