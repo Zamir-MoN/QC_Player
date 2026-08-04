@@ -228,8 +228,15 @@ const Home = () => {
           className="relative w-full h-[70vh] md:h-[85vh] flex flex-col justify-end pb-20 md:pb-32 mt-0"
         >
           <div className="absolute inset-0 w-full h-full">
-            {heroVideo.thumbnail ? (
-              <img src={heroVideo.thumbnail} alt="Hero" className="w-full h-full object-cover object-top" />
+            {heroVideo.thumbnail || heroVideo.mobileThumbnail ? (
+              <>
+                {heroVideo.mobileThumbnail && (
+                  <img src={heroVideo.mobileThumbnail} alt="Hero Mobile" className={`w-full h-full object-cover object-top ${heroVideo.thumbnail ? 'block md:hidden' : ''}`} />
+                )}
+                {heroVideo.thumbnail && (
+                  <img src={heroVideo.thumbnail} alt="Hero" className={`w-full h-full object-cover object-top ${heroVideo.mobileThumbnail ? 'hidden md:block' : ''}`} />
+                )}
+              </>
             ) : (
               <div className="w-full h-full bg-gradient-to-r from-gray-900 to-gray-800"></div>
             )}

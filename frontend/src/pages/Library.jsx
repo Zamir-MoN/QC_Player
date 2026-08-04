@@ -56,6 +56,7 @@ const Library = () => {
   const [editName, setEditName] = useState('');
   const [editTag, setEditTag] = useState('None');
   const [editThumbnail, setEditThumbnail] = useState('');
+  const [editMobileThumbnail, setEditMobileThumbnail] = useState('');
   const [editIsBanner, setEditIsBanner] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -107,6 +108,7 @@ const Library = () => {
     }
     
     setEditThumbnail(file.thumbnail || '');
+    setEditMobileThumbnail(file.mobileThumbnail || '');
     setEditIsBanner(file.isBanner || false);
   };
 
@@ -115,6 +117,7 @@ const Library = () => {
     setEditName('');
     setEditTag('None');
     setEditThumbnail('');
+    setEditMobileThumbnail('');
     setEditIsBanner(false);
   };
 
@@ -146,8 +149,11 @@ const Library = () => {
       }
 
       // 2. Handle Thumbnail
-      if (editThumbnail !== (editingFile.thumbnail || '')) {
-        await axios.put(`/api/library/${encodeURIComponent(targetFilename)}/thumbnail`, { thumbnail: editThumbnail }, {
+      if (editThumbnail !== (editingFile.thumbnail || '') || editMobileThumbnail !== (editingFile.mobileThumbnail || '')) {
+        await axios.put(`/api/library/${encodeURIComponent(targetFilename)}/thumbnail`, { 
+          thumbnail: editThumbnail,
+          mobileThumbnail: editMobileThumbnail
+        }, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -287,11 +293,25 @@ const Library = () => {
                     type="url" 
                     value={editThumbnail}
                     onChange={(e) => setEditThumbnail(e.target.value)}
-                    placeholder="https://example.com/poster.jpg"
+                    placeholder="https://example.com/poster-landscape.jpg"
                     className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500"
                   />
-                  <p className="text-xs text-gray-500 mt-2">Leave blank to use default icon.</p>
+                  <p className="text-xs text-gray-500 mt-2">Used for desktop banner and carousels.</p>
                 </div>
+
+                {editIsBanner && (
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-300">Mobile Banner URL (Optional)</label>
+                    <input 
+                      type="url" 
+                      value={editMobileThumbnail}
+                      onChange={(e) => setEditMobileThumbnail(e.target.value)}
+                      placeholder="https://example.com/poster-portrait.jpg"
+                      className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">Shown only on phones. Use a portrait (vertical) image.</p>
+                  </div>
+                )}
 
                 <div className="flex items-center gap-3 py-2">
                   <button 

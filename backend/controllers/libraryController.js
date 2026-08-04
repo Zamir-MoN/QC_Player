@@ -32,6 +32,7 @@ const getLibrary = async (req, res) => {
           size: (stats.size / (1024 * 1024)).toFixed(2) + ' MB',
           date: stats.mtime,
           thumbnail: metadata[file]?.thumbnail || null,
+          mobileThumbnail: metadata[file]?.mobileThumbnail || null,
           isBanner: metadata[file]?.isBanner || false
         });
       }
@@ -93,13 +94,14 @@ const renameFile = async (req, res) => {
 
 const updateThumbnail = async (req, res) => {
   const { filename } = req.params;
-  const { thumbnail } = req.body;
+  const { thumbnail, mobileThumbnail } = req.body;
   try {
     const metadata = await getMetadata();
     if (!metadata[filename]) metadata[filename] = {};
-    metadata[filename].thumbnail = thumbnail;
+    if (thumbnail !== undefined) metadata[filename].thumbnail = thumbnail;
+    if (mobileThumbnail !== undefined) metadata[filename].mobileThumbnail = mobileThumbnail;
     await saveMetadata(metadata);
-    res.json({ message: 'Thumbnail updated' });
+    res.json({ message: 'Thumbnails updated' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update thumbnail' });
   }
