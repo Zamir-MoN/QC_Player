@@ -120,7 +120,7 @@ const Home = () => {
     <div className="min-h-screen bg-[#141414] text-white font-sans overflow-x-hidden">
       {/* Navbar */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-500 p-4 md:px-12 flex items-center justify-between ${scrolled ? 'bg-black/20 backdrop-blur-md shadow-xl' : 'bg-transparent backdrop-blur-sm'}`}>
-        <div className="flex items-center gap-8">
+        <div className={`flex items-center gap-4 md:gap-8 transition-all duration-300 ${isSearchOpen ? 'w-0 overflow-hidden md:w-auto md:overflow-visible' : 'w-auto'}`}>
           <h1 className="text-3xl font-extrabold text-accent tracking-tighter cursor-pointer" onClick={() => {setSearchQuery(''); setIsSearchOpen(false);}}>
             QCFlex
           </h1>
@@ -146,7 +146,7 @@ const Home = () => {
             />
             <div 
               className={`flex items-center transition-all duration-500 ease-out ${
-                isSearchOpen ? 'w-48 md:w-64 opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
+                isSearchOpen ? 'w-40 sm:w-48 md:w-64 opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
               }`}
             >
               <input 
@@ -260,18 +260,18 @@ const Home = () => {
               Enjoy it in premium high definition, completely ad-free.
             </p>
             
-            <div className="flex gap-4">
+            <div className="flex gap-3 md:gap-4 flex-wrap">
               <button 
                 onClick={() => navigate(`/player?v=${encodeURIComponent(heroVideo.filename)}`)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded font-bold text-lg hover:bg-white/80 transition-colors shadow-xl"
+                className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-2.5 bg-white text-black rounded font-bold text-base md:text-lg hover:bg-white/80 transition-colors shadow-xl"
               >
-                <Play className="w-6 h-6 fill-current" />
+                <Play className="w-5 h-5 md:w-6 md:h-6 fill-current" />
                 Play
               </button>
               <button 
-                className="flex items-center gap-2 px-6 py-2.5 bg-white/20 backdrop-blur-md text-white rounded font-bold text-lg hover:bg-white/30 transition-colors shadow-xl"
+                className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-2.5 bg-white/20 backdrop-blur-md text-white rounded font-bold text-base md:text-lg hover:bg-white/30 transition-colors shadow-xl"
               >
-                <Info className="w-6 h-6" />
+                <Info className="w-5 h-5 md:w-6 md:h-6" />
                 More Info
               </button>
             </div>
@@ -291,7 +291,7 @@ const Home = () => {
           <div className="relative group -mx-4 px-4 md:-mx-12 md:px-12">
             <button 
               onClick={() => scrollLeft('slider-continue')}
-              className="absolute left-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-r from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
+              className="hidden md:flex absolute left-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-r from-[#141414] to-transparent items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
             >
               <ChevronLeft className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
             </button>
@@ -349,7 +349,7 @@ const Home = () => {
 
             <button 
               onClick={() => scrollRight('slider-continue')}
-              className="absolute right-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-l from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
+              className="hidden md:flex absolute right-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-l from-[#141414] to-transparent items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
             >
               <ChevronRight className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
             </button>
@@ -366,7 +366,7 @@ const Home = () => {
             {/* Scroll Arrows */}
             <button 
               onClick={() => scrollLeft('slider')}
-              className="absolute left-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-r from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
+              className="hidden md:flex absolute left-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-r from-[#141414] to-transparent items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r"
             >
               <ChevronLeft className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
             </button>
@@ -417,7 +417,7 @@ const Home = () => {
 
             <button 
               onClick={() => scrollRight('slider')}
-              className="absolute right-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-l from-[#141414] to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
+              className="hidden md:flex absolute right-0 top-8 bottom-8 z-40 w-16 bg-gradient-to-l from-[#141414] to-transparent items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-l"
             >
               <ChevronRight className="w-10 h-10 text-white drop-shadow-md hover:scale-125 transition-transform" />
             </button>

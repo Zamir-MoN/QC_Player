@@ -262,14 +262,14 @@ const Player = () => {
       )}
 
       {/* Top Bar (Title & Back Button) */}
-      <div className={`absolute top-0 left-0 w-full p-6 bg-gradient-to-b from-black/80 to-transparent z-10 flex items-center gap-4 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`absolute top-0 left-0 w-full p-4 sm:p-6 bg-gradient-to-b from-black/80 to-transparent z-10 flex items-center gap-3 sm:gap-4 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
         <button 
           onClick={() => navigate('/')}
-          className="p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-colors text-white"
+          className="p-2 sm:p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-colors text-white flex-shrink-0"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
-        <h1 className="text-2xl font-medium tracking-wide drop-shadow-md text-white">{title}</h1>
+        <h1 className="text-lg sm:text-2xl font-medium tracking-wide drop-shadow-md text-white truncate">{title}</h1>
       </div>
 
       {/* Center Big Play/Pause Animation (Optional Netflix style feature) */}
@@ -316,7 +316,7 @@ const Player = () => {
             </button>
 
             {/* Volume Control */}
-            <div className="flex items-center gap-2 group/volume">
+            <div className="hidden sm:flex items-center gap-2 group/volume">
               <button onClick={toggleMute} className="hover:text-accent transition-colors">
                 {isMuted || volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
               </button>
