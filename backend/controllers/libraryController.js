@@ -121,10 +121,110 @@ const updateBanner = async (req, res) => {
   }
 };
 
+const getMediaTracks = async (req, res) => {
+  const { filename } = req.params;
+  const filepath = path.join(mountDir, filename);
+
+  try {
+    const ffprobe = spawn('ffprobe', [
+      '-v', 'error',
+      '-select_streams', 'a',
+      '-show_entries', 'stream=index,codec_name:stream_tags=language,title',
+      '-of', 'json',
+      filepath
+    ]);
+
+    let output = '';
+    ffprobe.stdout.on('data', (data) => output += data.toString());
+    
+    await new Promise((resolve, reject) => {
+      ffprobe.on('close', (code) => {
+        if (code === 0) resolve();
+        else reject(new Error('ffprobe failed'));
+      });
+    });
+
+    const parsed = JSON.parse(output);
+    const tracks = (parsed.streams || []).map((s, idx) => ({
+      id: s.index,
+      index: idx, // 0-based relative index for mapping
+      codec: s.codec_name,
+      language: s.tags?.language || s.tags?.title || `Track ${idx + 1}`
+    }));
+    
+    // Check which tracks have already been extracted
+    const ext = path.extname(filename);
+    const baseName = path.basename(filename, ext);
+    for (const track of tracks) {
+      if (track.index === 0) {
+        track.isDefault = true;
+        track.isExtracted = true; // The original file plays this
+      } else {
+        const outName = `${baseName}_audio_${track.id}.m4a`;
+        try {
+          await fs.access(path.join(mountDir, outName));
+          track.isExtracted = true;
+          track.url = `/api/public/media/${encodeURIComponent(outName)}`;
+        } catch (e) {
+          track.isExtracted = false;
+        }
+      }
+    }
+    
+    res.json(tracks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to probe tracks' });
+  }
+};
+
+const extractAudioTrack = async (req, res) => {
+  const { filename } = req.params;
+  const { trackId } = req.body; // use the actual ffprobe stream index
+  const filepath = path.join(mountDir, filename);
+  
+  const ext = path.extname(filename);
+  const baseName = path.basename(filename, ext);
+  const outName = `${baseName}_audio_${trackId}.m4a`;
+  const outPath = path.join(mountDir, outName);
+
+  try {
+    await fs.access(outPath);
+    return res.json({ message: 'Already extracted', url: `/api/public/media/${encodeURIComponent(outName)}` });
+  } catch (e) {
+    // Proceed to extract
+  }
+
+  try {
+    const ffmpeg = spawn('ffmpeg', [
+      '-i', filepath,
+      '-map', `0:${trackId}`,
+      '-c:a', 'aac',
+      '-b:a', '192k',
+      '-y',
+      outPath
+    ]);
+
+    await new Promise((resolve, reject) => {
+      ffmpeg.on('close', (code) => {
+        if (code === 0) resolve();
+        else reject(new Error(`ffmpeg exited with code ${code}`));
+      });
+    });
+
+    res.json({ message: 'Extraction complete', url: `/api/public/media/${encodeURIComponent(outName)}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to extract audio' });
+  }
+};
+
 module.exports = {
   getLibrary,
   deleteFile,
   renameFile,
   updateThumbnail,
-  updateBanner
+  updateBanner,
+  getMediaTracks,
+  extractAudioTrack
 };

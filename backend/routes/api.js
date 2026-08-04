@@ -3,7 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const downloadController = require('../controllers/downloadController');
 const { getSystemStatus } = require('../utils/systemStatus');
-const { getLibrary, deleteFile, renameFile, updateThumbnail, updateBanner } = require('../controllers/libraryController');
+const { getLibrary, deleteFile, renameFile, updateThumbnail, updateBanner, getMediaTracks, extractAudioTrack } = require('../controllers/libraryController');
 
 // Middleware to verify JWT
 const verifyToken = require('../middleware/authMiddleware');
@@ -33,5 +33,9 @@ router.delete('/library/:filename', verifyToken, deleteFile);
 router.put('/library/:filename', verifyToken, renameFile);
 router.put('/library/:filename/thumbnail', verifyToken, updateThumbnail);
 router.put('/library/:filename/banner', verifyToken, updateBanner);
+
+// Media processing routes
+router.get('/public/media/:filename/tracks', getMediaTracks);
+router.post('/public/media/:filename/extract-audio', extractAudioTrack);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { 
   ArrowLeft, Play, Pause, Volume2, VolumeX, 
   Maximize, Minimize, Settings, FastForward, Rewind,
@@ -24,8 +25,14 @@ const Player = () => {
   const filename = searchParams.get('v');
   
   const videoRef = useRef(null);
+  const audioRef = useRef(null);
   const playerContainerRef = useRef(null);
   const hideControlsTimeoutRef = useRef(null);
+  const syncAnimationFrame = useRef(null);
+
+  const [audioTracks, setAudioTracks] = useState([]);
+  const [selectedTrack, setSelectedTrack] = useState(0); // 0 is default
+  const [isExtractingAudio, setIsExtractingAudio] = useState(false);
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
@@ -37,6 +44,49 @@ const Player = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
   const [isBuffering, setIsBuffering] = useState(true);
+
+  useEffect(() => {
+    if (!filename) return;
+    const fetchTracks = async () => {
+      try {
+        const res = await axios.get(`/api/public/media/${encodeURIComponent(filename)}/tracks`);
+        setAudioTracks(res.data);
+      } catch (err) {
+        console.error("Failed to fetch audio tracks");
+      }
+    };
+    fetchTracks();
+  }, [filename]);
+
+  // Strict Audio/Video Synchronization Loop
+  useEffect(() => {
+    const syncLoop = () => {
+      if (videoRef.current && audioRef.current && selectedTrack !== 0) {
+        const vTime = videoRef.current.currentTime;
+        const aTime = audioRef.current.currentTime;
+        
+        // If drift is more than 0.1s, force audio to snap to video time
+        if (Math.abs(vTime - aTime) > 0.1) {
+          audioRef.current.currentTime = vTime;
+        }
+
+        // Sync playback state
+        if (videoRef.current.paused !== audioRef.current.paused) {
+          if (videoRef.current.paused) audioRef.current.pause();
+          else {
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+              playPromise.catch(() => {});
+            }
+          }
+        }
+      }
+      syncAnimationFrame.current = requestAnimationFrame(syncLoop);
+    };
+
+    syncAnimationFrame.current = requestAnimationFrame(syncLoop);
+    return () => cancelAnimationFrame(syncAnimationFrame.current);
+  }, [selectedTrack]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -126,15 +176,15 @@ const Player = () => {
     const val = parseFloat(newVolume);
     setVolume(val);
     if (videoRef.current) {
+      // If we are using an external audio track, mute the video
       videoRef.current.volume = val;
-      if (val === 0) {
-        setIsMuted(true);
-        videoRef.current.muted = true;
-      } else {
-        setIsMuted(false);
-        videoRef.current.muted = false;
-      }
+      videoRef.current.muted = val === 0 || selectedTrack !== 0;
     }
+    if (audioRef.current) {
+      audioRef.current.volume = val;
+      audioRef.current.muted = val === 0;
+    }
+    setIsMuted(val === 0);
   };
 
   const handleSeek = (e) => {
@@ -169,10 +219,41 @@ const Player = () => {
 
   const changeSpeed = (speed) => {
     setPlaybackSpeed(speed);
-    if (videoRef.current) {
-      videoRef.current.playbackRate = speed;
-    }
+    if (videoRef.current) videoRef.current.playbackRate = speed;
+    if (audioRef.current) audioRef.current.playbackRate = speed;
     setShowSettings(false);
+  };
+
+  const handleTrackChange = async (track) => {
+    if (track.index === selectedTrack) return;
+    
+    if (track.index === 0 || track.isExtracted) {
+      setSelectedTrack(track.index);
+      setShowSettings(false);
+      // Ensure video is muted if using alternate track
+      if (videoRef.current) videoRef.current.muted = track.index !== 0 || isMuted;
+    } else {
+      // Need to extract
+      setIsExtractingAudio(true);
+      setShowSettings(false);
+      try {
+        const res = await axios.post(`/api/public/media/${encodeURIComponent(filename)}/extract-audio`, {
+          trackId: track.id
+        });
+        
+        // Refresh tracks to get the new URL
+        const tracksRes = await axios.get(`/api/public/media/${encodeURIComponent(filename)}/tracks`);
+        setAudioTracks(tracksRes.data);
+        
+        setSelectedTrack(track.index);
+        if (videoRef.current) videoRef.current.muted = true;
+      } catch (err) {
+        console.error(err);
+        alert('Failed to extract audio track.');
+      } finally {
+        setIsExtractingAudio(false);
+      }
+    }
   };
 
   if (!filename) {
@@ -194,6 +275,16 @@ const Player = () => {
       onMouseMove={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
+      {/* Hidden Audio Element for alternative tracks */}
+      {selectedTrack !== 0 && audioTracks[selectedTrack]?.url && (
+        <audio 
+          ref={audioRef} 
+          src={audioTracks[selectedTrack].url} 
+          onWaiting={() => setIsBuffering(true)}
+          onCanPlay={() => setIsBuffering(false)}
+        />
+      )}
+
       {/* Video Element */}
       <video
         ref={videoRef}
@@ -254,10 +345,15 @@ const Player = () => {
         autoPlay
       />
 
-      {/* Buffering Spinner */}
-      {isBuffering && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <div className="w-14 h-14 border-[3px] border-accent/20 border-t-accent rounded-full animate-spin"></div>
+      {/* Buffering or Extracting Spinner */}
+      {(isBuffering || isExtractingAudio) && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20 bg-black/40 backdrop-blur-sm">
+          <div className="w-14 h-14 border-[3px] border-accent/20 border-t-accent rounded-full animate-spin mb-4"></div>
+          {isExtractingAudio && (
+            <p className="text-white font-medium tracking-wide drop-shadow-md">
+              Extracting High-Quality Audio... (This takes a minute)
+            </p>
+          )}
         </div>
       )}
 
@@ -370,6 +466,23 @@ const Player = () => {
                       {playbackSpeed === speed && <span>✓</span>}
                     </button>
                   ))}
+                  
+                  {audioTracks.length > 1 && (
+                    <>
+                      <div className="h-px bg-white/10 my-2"></div>
+                      <div className="px-3 py-2 text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">Audio Language</div>
+                      {audioTracks.map(track => (
+                        <button 
+                          key={track.id}
+                          onClick={() => handleTrackChange(track)}
+                          className={`w-full text-left px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors flex justify-between ${selectedTrack === track.index ? 'text-accent font-medium' : ''}`}
+                        >
+                          <span>{track.language}</span>
+                          {selectedTrack === track.index && <span>✓</span>}
+                        </button>
+                      ))}
+                    </>
+                  )}
                 </div>
               )}
             </div>
