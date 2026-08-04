@@ -266,7 +266,7 @@ const Home = () => {
 
       {/* Horizontal Carousel */}
       {videos.length > 0 && (
-        <div className={`relative z-20 pb-20 px-4 md:px-12 ${getContinueWatching().length === 0 ? '-mt-20 md:-mt-32' : '-mt-4'}`}>
+        <div className={`relative z-20 pb-20 px-4 md:px-12 ${getContinueWatching().length === 0 ? '-mt-20 md:-mt-32' : 'mt-2'}`}>
           <h2 className="text-lg md:text-xl font-bold mb-2">Trending Now</h2>
           
           <div className="relative group -mx-4 px-4 md:-mx-12 md:px-12">
