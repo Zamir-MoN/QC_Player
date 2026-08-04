@@ -205,17 +205,20 @@ const extractAudioTrack = async (req, res) => {
       outPath
     ]);
 
+    let errOutput = '';
+    ffmpeg.stderr.on('data', data => errOutput += data.toString());
+
     await new Promise((resolve, reject) => {
       ffmpeg.on('close', (code) => {
         if (code === 0) resolve();
-        else reject(new Error(`ffmpeg exited with code ${code}`));
+        else reject(new Error(`ffmpeg exited with code ${code}. Stderr: ${errOutput.substring(errOutput.length - 500)}`));
       });
     });
 
     res.json({ message: 'Extraction complete', url: `/api/public/media/${encodeURIComponent(outName)}` });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to extract audio' });
+    res.status(500).json({ error: 'Failed to extract audio', details: error.message });
   }
 };
 

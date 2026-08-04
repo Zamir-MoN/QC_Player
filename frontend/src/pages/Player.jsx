@@ -249,7 +249,7 @@ const Player = () => {
         if (videoRef.current) videoRef.current.muted = true;
       } catch (err) {
         console.error(err);
-        alert('Failed to extract audio track.');
+        alert('Failed to extract audio track: ' + (err.response?.data?.details || err.message));
       } finally {
         setIsExtractingAudio(false);
       }
