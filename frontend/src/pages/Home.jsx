@@ -120,7 +120,7 @@ const Home = () => {
       <header className={`fixed top-0 w-full z-50 transition-all duration-500 p-4 md:px-12 flex items-center justify-between ${scrolled ? 'bg-black/20 backdrop-blur-md shadow-xl' : 'bg-transparent backdrop-blur-sm'}`}>
         <div className="flex items-center gap-8">
           <h1 className="text-3xl font-extrabold text-accent tracking-tighter cursor-pointer">
-            NETFLIX
+            QCFlex
           </h1>
           <nav className="hidden md:flex gap-4 text-sm font-medium text-white/80">
             <span className="cursor-pointer font-bold text-white">Movies</span>
