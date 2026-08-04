@@ -240,12 +240,13 @@ const Home = () => {
             ) : (
               <div className="w-full h-full bg-gradient-to-r from-gray-900 to-gray-800"></div>
             )}
-            {/* Mobile bottom gradient (stronger) */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/60 sm:via-[#141414]/40 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#141414] to-transparent"></div>
-            <div className="absolute bottom-0 left-0 right-0 h-10 bg-[#141414]"></div>
+            {/* Enhanced bottom gradients for perfect blending */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-[60%] bg-gradient-to-t from-[#141414] via-[#141414]/80 sm:via-[#141414]/50 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-24 bg-[#141414]"></div>
+            
             {/* Desktop side gradient */}
-            <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-[#141414] via-[#141414]/60 to-transparent opacity-90"></div>
+            <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-[#141414] via-[#141414]/70 to-transparent opacity-95"></div>
           </div>
           
           <div className="relative z-10 w-full px-4 md:px-12 max-w-3xl mx-auto md:mx-0 flex flex-col items-center md:items-start text-center md:text-left">
