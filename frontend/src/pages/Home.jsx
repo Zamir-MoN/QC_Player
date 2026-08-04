@@ -131,30 +131,43 @@ const Home = () => {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <div className={`flex items-center border transition-all duration-300 rounded-sm ${isSearchOpen ? 'bg-black/40 border-white/80 px-2 py-1' : 'bg-transparent border-transparent px-0 py-0'}`}>
+          <div 
+            className={`flex items-center border transition-all duration-500 ease-out overflow-hidden ${
+              isSearchOpen 
+                ? 'bg-black/50 backdrop-blur-xl border-white/20 rounded-full pl-4 pr-3 py-2 shadow-2xl' 
+                : 'bg-transparent border-transparent rounded-full p-0 shadow-none'
+            }`}
+          >
             <Search 
-              className={`w-6 h-6 cursor-pointer transition-colors ${isSearchOpen ? 'text-white mr-2' : 'text-white hover:text-white/60'}`} 
+              className={`w-6 h-6 flex-shrink-0 cursor-pointer transition-all duration-300 ${
+                isSearchOpen ? 'text-white/50 hover:text-white' : 'text-white hover:text-accent hover:scale-110'
+              }`} 
               onClick={() => setIsSearchOpen(true)} 
             />
-            {isSearchOpen && (
-              <>
-                <input 
-                  type="text" 
-                  autoFocus
-                  placeholder="Titles, people, genres"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none text-sm text-white w-40 md:w-60 placeholder-white/50"
-                />
-                <X 
-                  className="w-4 h-4 cursor-pointer text-white/50 hover:text-white transition-colors" 
-                  onClick={() => {
-                    setIsSearchOpen(false);
-                    setSearchQuery('');
-                  }} 
-                />
-              </>
-            )}
+            <div 
+              className={`flex items-center transition-all duration-500 ease-out ${
+                isSearchOpen ? 'w-48 md:w-64 opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
+              }`}
+            >
+              <input 
+                id="searchInput"
+                type="text" 
+                placeholder="Search movies..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-none outline-none text-sm text-white w-full placeholder-white/40 font-medium"
+              />
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsSearchOpen(false);
+                  setSearchQuery('');
+                }}
+                className="p-1.5 rounded-full hover:bg-white/20 transition-colors ml-1"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
