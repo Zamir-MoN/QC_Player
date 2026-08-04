@@ -73,7 +73,7 @@ const Upload = () => {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      navigate('/queue');
+      navigate('/admin/queue');
     } catch (err) {
       console.error(err);
       alert('Failed to start download');
