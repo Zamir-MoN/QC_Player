@@ -241,21 +241,21 @@ const Home = () => {
           </div>
           
           <div className="relative z-10 w-full px-4 md:px-12 max-w-3xl">
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold drop-shadow-2xl mb-4 leading-tight line-clamp-3">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold drop-shadow-2xl mb-2 md:mb-4 leading-tight">
               {parseVideoInfo(heroVideo.filename).cleanName}
             </h1>
             
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4 md:mb-6">
               {parseVideoInfo(heroVideo.filename).tag && (
-                <span className="text-sm font-bold px-2 py-1 bg-white/20 backdrop-blur-md rounded border border-white/20 shadow-lg text-white">
+                <span className="text-xs font-bold px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded border border-white/20 shadow-lg text-white">
                   {parseVideoInfo(heroVideo.filename).tag}
                 </span>
               )}
-              <span className="text-sm font-semibold text-green-500 drop-shadow-md">98% Match</span>
-              <span className="text-sm font-semibold text-gray-300 drop-shadow-md border border-gray-500 px-1.5 rounded-sm">18+</span>
+              <span className="text-xs font-bold text-[#46d369] drop-shadow-md">98% Match</span>
+              <span className="text-xs font-bold text-gray-300 border border-gray-600 bg-black/40 px-1 rounded-sm">18+</span>
             </div>
 
-            <p className="text-sm md:text-lg text-white drop-shadow-lg mb-8 line-clamp-3 max-w-2xl">
+            <p className="text-sm md:text-lg text-white drop-shadow-lg mb-6 md:mb-8 line-clamp-3 max-w-2xl font-medium">
               Watch this incredible new release available right now on your personal streaming platform. 
               Enjoy it in premium high definition, completely ad-free.
             </p>
@@ -263,13 +263,13 @@ const Home = () => {
             <div className="flex gap-3 md:gap-4 flex-wrap">
               <button 
                 onClick={() => navigate(`/player?v=${encodeURIComponent(heroVideo.filename)}`)}
-                className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-2.5 bg-white text-black rounded font-bold text-base md:text-lg hover:bg-white/80 transition-colors shadow-xl"
+                className="flex items-center justify-center gap-2 px-5 py-2 md:px-8 md:py-3 bg-white text-black rounded-full font-bold text-sm md:text-lg hover:bg-white/80 transition-colors shadow-xl"
               >
                 <Play className="w-5 h-5 md:w-6 md:h-6 fill-current" />
                 Play
               </button>
               <button 
-                className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-2.5 bg-white/20 backdrop-blur-md text-white rounded font-bold text-base md:text-lg hover:bg-white/30 transition-colors shadow-xl"
+                className="flex items-center justify-center gap-2 px-5 py-2 md:px-8 md:py-3 bg-[#515451]/70 backdrop-blur-md text-white rounded-full font-bold text-sm md:text-lg hover:bg-[#515451] transition-colors shadow-xl"
               >
                 <Info className="w-5 h-5 md:w-6 md:h-6" />
                 More Info
@@ -307,7 +307,7 @@ const Home = () => {
                   <div 
                     key={`cw-${idx}`}
                     onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
-                    className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
+                    className="w-[140px] sm:w-[180px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md md:rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
                   >
                     <div className="w-full h-full rounded-xl overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
                       {video.thumbnail ? (
@@ -380,7 +380,7 @@ const Home = () => {
                 <div 
                   key={idx}
                   onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
-                  className="w-[180px] sm:w-[220px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
+                  className="w-[140px] sm:w-[180px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md md:rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
                 >
                   <div className="w-full h-full rounded-xl overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
                     {video.thumbnail ? (
