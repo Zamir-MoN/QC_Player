@@ -220,6 +220,7 @@ const Home = () => {
             ) : (
               <div className="w-full h-full bg-gradient-to-r from-gray-900 to-gray-800"></div>
             )}
+            <div className="absolute inset-0 bg-black/30"></div> {/* Overall dark tint */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/40 to-transparent"></div>
             <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#141414] to-transparent"></div>
             <div className="absolute bottom-0 left-0 right-0 h-8 bg-[#141414]"></div>
