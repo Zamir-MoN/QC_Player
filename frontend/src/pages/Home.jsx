@@ -225,27 +225,28 @@ const Home = () => {
           initial={{ opacity: 0.5 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          className="relative w-full h-[85vh] flex flex-col justify-end pb-32"
+          className="relative w-full h-[70vh] md:h-[85vh] flex flex-col justify-end pb-12 md:pb-32 mt-0"
         >
           <div className="absolute inset-0 w-full h-full">
             {heroVideo.thumbnail ? (
-              <img src={heroVideo.thumbnail} alt="Hero" className="w-full h-full object-cover" />
+              <img src={heroVideo.thumbnail} alt="Hero" className="w-full h-full object-cover object-top" />
             ) : (
               <div className="w-full h-full bg-gradient-to-r from-gray-900 to-gray-800"></div>
             )}
-            <div className="absolute inset-0 bg-black/30"></div> {/* Overall dark tint */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/40 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#141414] to-transparent"></div>
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-[#141414]"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#141414] via-transparent to-transparent opacity-80"></div>
+            {/* Mobile bottom gradient (stronger) */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/60 sm:via-[#141414]/40 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#141414] to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-10 bg-[#141414]"></div>
+            {/* Desktop side gradient */}
+            <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-[#141414] via-[#141414]/60 to-transparent opacity-90"></div>
           </div>
           
-          <div className="relative z-10 w-full px-4 md:px-12 max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold drop-shadow-2xl mb-2 md:mb-4 leading-tight">
+          <div className="relative z-10 w-full px-4 md:px-12 max-w-3xl mx-auto md:mx-0 flex flex-col items-center md:items-start text-center md:text-left">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold drop-shadow-2xl mb-3 md:mb-4 leading-tight">
               {parseVideoInfo(heroVideo.filename).cleanName}
             </h1>
             
-            <div className="flex items-center gap-3 mb-4 md:mb-6">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-5 md:mb-6">
               {parseVideoInfo(heroVideo.filename).tag && (
                 <span className="text-xs font-bold px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded border border-white/20 shadow-lg text-white">
                   {parseVideoInfo(heroVideo.filename).tag}
@@ -255,21 +256,21 @@ const Home = () => {
               <span className="text-xs font-bold text-gray-300 border border-gray-600 bg-black/40 px-1 rounded-sm">18+</span>
             </div>
 
-            <p className="text-sm md:text-lg text-white drop-shadow-lg mb-6 md:mb-8 line-clamp-3 max-w-2xl font-medium">
+            <p className="hidden md:block text-sm md:text-lg text-white drop-shadow-lg mb-6 md:mb-8 line-clamp-3 max-w-2xl font-medium">
               Watch this incredible new release available right now on your personal streaming platform. 
               Enjoy it in premium high definition, completely ad-free.
             </p>
             
-            <div className="flex gap-3 md:gap-4 flex-wrap">
+            <div className="flex justify-center md:justify-start gap-3 md:gap-4 flex-wrap w-full">
               <button 
                 onClick={() => navigate(`/player?v=${encodeURIComponent(heroVideo.filename)}`)}
-                className="flex items-center justify-center gap-2 px-5 py-2 md:px-8 md:py-3 bg-white text-black rounded-full font-bold text-sm md:text-lg hover:bg-white/80 transition-colors shadow-xl"
+                className="flex items-center justify-center gap-2 px-6 py-2.5 md:px-8 md:py-3 bg-white text-black rounded-full font-bold text-sm md:text-lg hover:bg-white/80 transition-colors shadow-xl"
               >
                 <Play className="w-5 h-5 md:w-6 md:h-6 fill-current" />
                 Play
               </button>
               <button 
-                className="flex items-center justify-center gap-2 px-5 py-2 md:px-8 md:py-3 bg-[#515451]/70 backdrop-blur-md text-white rounded-full font-bold text-sm md:text-lg hover:bg-[#515451] transition-colors shadow-xl"
+                className="flex items-center justify-center gap-2 px-6 py-2.5 md:px-8 md:py-3 bg-[#515451]/70 backdrop-blur-md text-white rounded-full font-bold text-sm md:text-lg hover:bg-[#515451] transition-colors shadow-xl"
               >
                 <Info className="w-5 h-5 md:w-6 md:h-6" />
                 More Info
