@@ -33,9 +33,16 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (videos.length <= 1) return;
+    const bannerVideos = videos.filter(v => v.isBanner);
+    const activeVideos = bannerVideos.length > 0 ? bannerVideos : videos;
+
+    if (activeVideos.length <= 1) {
+      setHeroIndex(0);
+      return;
+    }
+    
     const interval = setInterval(() => {
-      setHeroIndex(prev => (prev + 1) % videos.length);
+      setHeroIndex(prev => (prev + 1) % activeVideos.length);
     }, 6000);
     return () => clearInterval(interval);
   }, [videos]);
@@ -103,7 +110,9 @@ const Home = () => {
     );
   }
 
-  const heroVideo = videos.length > 0 ? videos[heroIndex] : null;
+  const bannerVideos = videos.filter(v => v.isBanner);
+  const activeVideos = bannerVideos.length > 0 ? bannerVideos : videos;
+  const heroVideo = activeVideos.length > 0 ? activeVideos[heroIndex] : null;
 
   return (
     <div className="min-h-screen bg-[#141414] text-white font-sans overflow-x-hidden">

@@ -56,6 +56,7 @@ const Library = () => {
   const [editName, setEditName] = useState('');
   const [editTag, setEditTag] = useState('None');
   const [editThumbnail, setEditThumbnail] = useState('');
+  const [editIsBanner, setEditIsBanner] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const fetchLibrary = async () => {
@@ -104,6 +105,7 @@ const Library = () => {
     }
     
     setEditThumbnail(file.thumbnail || '');
+    setEditIsBanner(file.isBanner || false);
   };
 
   const closeEditModal = () => {
@@ -111,6 +113,7 @@ const Library = () => {
     setEditName('');
     setEditTag('None');
     setEditThumbnail('');
+    setEditIsBanner(false);
   };
 
   const handleSave = async (e) => {
@@ -143,6 +146,13 @@ const Library = () => {
       // 2. Handle Thumbnail
       if (editThumbnail !== (editingFile.thumbnail || '')) {
         await axios.put(`/api/library/${encodeURIComponent(targetFilename)}/thumbnail`, { thumbnail: editThumbnail }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+
+      // 3. Handle Banner Status
+      if (editIsBanner !== (editingFile.isBanner || false)) {
+        await axios.put(`/api/library/${encodeURIComponent(targetFilename)}/banner`, { isBanner: editIsBanner }, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -279,6 +289,19 @@ const Library = () => {
                     className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-white placeholder-gray-500"
                   />
                   <p className="text-xs text-gray-500 mt-2">Leave blank to use default icon.</p>
+                </div>
+
+                <div className="flex items-center gap-3 py-2">
+                  <button 
+                    type="button"
+                    onClick={() => setEditIsBanner(!editIsBanner)}
+                    className={`w-12 h-6 rounded-full p-1 transition-colors ${editIsBanner ? 'bg-accent' : 'bg-white/10'}`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${editIsBanner ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                  </button>
+                  <label className="text-sm font-medium text-gray-300 cursor-pointer" onClick={() => setEditIsBanner(!editIsBanner)}>
+                    Show in Landing Page Banner
+                  </label>
                 </div>
 
                 <div className="pt-4 flex gap-3">

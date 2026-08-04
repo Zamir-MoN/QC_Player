@@ -31,7 +31,8 @@ const getLibrary = async (req, res) => {
           filename: file,
           size: (stats.size / (1024 * 1024)).toFixed(2) + ' MB',
           date: stats.mtime,
-          thumbnail: metadata[file]?.thumbnail || null
+          thumbnail: metadata[file]?.thumbnail || null,
+          isBanner: metadata[file]?.isBanner || false
         });
       }
     }
@@ -104,9 +105,24 @@ const updateThumbnail = async (req, res) => {
   }
 };
 
+const updateBanner = async (req, res) => {
+  const { filename } = req.params;
+  const { isBanner } = req.body;
+  try {
+    const metadata = await getMetadata();
+    if (!metadata[filename]) metadata[filename] = {};
+    metadata[filename].isBanner = isBanner;
+    await saveMetadata(metadata);
+    res.json({ message: 'Banner status updated' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update banner status' });
+  }
+};
+
 module.exports = {
   getLibrary,
   deleteFile,
   renameFile,
-  updateThumbnail
+  updateThumbnail,
+  updateBanner
 };
