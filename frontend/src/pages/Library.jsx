@@ -61,6 +61,8 @@ const Library = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
+  const encodePath = (p) => p.split('/').map(encodeURIComponent).join('/');
+
   const fetchLibrary = async () => {
     setLoading(true);
     try {
@@ -84,7 +86,7 @@ const Library = () => {
     if (!deleteConfirm) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`/api/library/${encodeURIComponent(deleteConfirm)}`, {
+      await axios.delete(`/api/library/${encodePath(deleteConfirm)}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchLibrary();
@@ -142,15 +144,20 @@ const Library = () => {
       }
 
       if (finalNewName !== editingFile.filename) {
-        await axios.put(`/api/library/${encodeURIComponent(editingFile.filename)}`, { newName: finalNewName }, {
+        // Only send the base name, the backend resolves the path
+        const newBaseName = finalNewName.split('/').pop();
+        await axios.put(`/api/library/${encodePath(editingFile.filename)}`, { newName: newBaseName }, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        targetFilename = finalNewName; // Update target for thumbnail request
+        
+        // We must update the targetFilename path since it was renamed
+        const dirPath = editingFile.filename.substring(0, editingFile.filename.lastIndexOf('/'));
+        targetFilename = `${dirPath}/${newBaseName}`;
       }
 
       // 2. Handle Thumbnail
       if (editThumbnail !== (editingFile.thumbnail || '') || editMobileThumbnail !== (editingFile.mobileThumbnail || '')) {
-        await axios.put(`/api/library/${encodeURIComponent(targetFilename)}/thumbnail`, { 
+        await axios.put(`/api/library/${encodePath(targetFilename)}/thumbnail`, { 
           thumbnail: editThumbnail,
           mobileThumbnail: editMobileThumbnail
         }, {
@@ -160,7 +167,7 @@ const Library = () => {
 
       // 3. Handle Banner Status
       if (editIsBanner !== (editingFile.isBanner || false)) {
-        await axios.put(`/api/library/${encodeURIComponent(targetFilename)}/banner`, { isBanner: editIsBanner }, {
+        await axios.put(`/api/library/${encodePath(targetFilename)}/banner`, { isBanner: editIsBanner }, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }

@@ -237,14 +237,14 @@ const Player = () => {
       setIsExtractingAudio(true);
       setShowSettings(false);
       try {
-        await axios.post(`/api/public/media/${encodeURIComponent(filename)}/extract-audio`, {
+        await axios.post(`/api/public/media/${encodePath(filename)}/extract-audio`, {
           trackId: track.id
         });
         
         // Start polling every 3 seconds
         const pollInterval = setInterval(async () => {
           try {
-            const tracksRes = await axios.get(`/api/public/media/${encodeURIComponent(filename)}/tracks`);
+            const tracksRes = await axios.get(`/api/public/media/${encodePath(filename)}/tracks`);
             const updatedTrack = tracksRes.data.find(t => t.id === track.id);
             if (updatedTrack && updatedTrack.isExtracted) {
               clearInterval(pollInterval);

@@ -153,10 +153,13 @@ const startDownload = async (req, res) => {
     downloadTask.step = 'Moving file to Mount';
     broadcastQueue();
 
-    const destPath = path.join(mountDir, finalDestFilename);
+    const categoryFolder = category === 'Movies' ? 'Movies' : 'Web Series';
+    const folderName = finalDestFilename.replace(/\.[^/.]+$/, "");
+    const destDir = path.join(mountDir, categoryFolder, folderName);
+    const destPath = path.join(destDir, finalDestFilename);
     
-    // Ensure mount dir exists (fallback)
-    await fs.mkdir(mountDir, { recursive: true }).catch(()=>null);
+    // Ensure nested mount dir exists
+    await fs.mkdir(destDir, { recursive: true }).catch(()=>null);
 
     const mvProcess = spawn('mv', [finalSourcePath, destPath]);
     await new Promise((resolve, reject) => {

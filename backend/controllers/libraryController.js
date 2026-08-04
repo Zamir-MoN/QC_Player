@@ -18,24 +18,48 @@ const saveMetadata = async (data) => {
   await fs.writeFile(metadataFile, JSON.stringify(data, null, 2));
 };
 
+const scanDirectory = async (dir, baseDir = '') => {
+  let results = [];
+  try {
+    const list = await fs.readdir(dir, { withFileTypes: true });
+    for (const item of list) {
+      const itemPath = path.join(dir, item.name);
+      const relativePath = path.posix.join(baseDir, item.name);
+      
+      if (item.isDirectory()) {
+        const subResults = await scanDirectory(itemPath, relativePath);
+        results = results.concat(subResults);
+      } else if (item.isFile() && item.name.endsWith('.mp4')) {
+        results.push(relativePath);
+      }
+    }
+  } catch (e) {}
+  return results;
+};
+
 const getLibrary = async (req, res) => {
   try {
-    const files = await fs.readdir(mountDir);
     const metadata = await getMetadata();
     const libraryItems = [];
 
-    for (const file of files) {
-      const stats = await fs.stat(path.join(mountDir, file));
-      if (stats.isFile()) {
+    const movieFiles = await scanDirectory(path.join(mountDir, 'Movies'), 'Movies');
+    const webSeriesFiles = await scanDirectory(path.join(mountDir, 'Web Series'), 'Web Series');
+    
+    const allFiles = [...movieFiles, ...webSeriesFiles];
+
+    for (const relativePath of allFiles) {
+      const fullPath = path.join(mountDir, relativePath);
+      try {
+        const stats = await fs.stat(fullPath);
         libraryItems.push({
-          filename: file,
+          filename: relativePath,
           size: (stats.size / (1024 * 1024)).toFixed(2) + ' MB',
           date: stats.mtime,
-          thumbnail: metadata[file]?.thumbnail || null,
-          mobileThumbnail: metadata[file]?.mobileThumbnail || null,
-          isBanner: metadata[file]?.isBanner || false
+          thumbnail: metadata[relativePath]?.thumbnail || null,
+          mobileThumbnail: metadata[relativePath]?.mobileThumbnail || null,
+          isBanner: metadata[relativePath]?.isBanner || false
         });
-      }
+      } catch (e) {}
     }
 
     res.json(libraryItems);
@@ -45,9 +69,12 @@ const getLibrary = async (req, res) => {
 };
 
 const deleteFile = async (req, res) => {
-  const { filename } = req.params;
+  const filename = req.params[0];
+  const fullPath = path.join(mountDir, filename);
+  const folderPath = path.dirname(fullPath);
+
   try {
-    const rmProcess = spawn('rm', [path.join(mountDir, filename)]);
+    const rmProcess = spawn('rm', ['-rf', folderPath]);
     await new Promise((resolve, reject) => {
       rmProcess.on('close', (code) => {
         if (code === 0) resolve();
@@ -61,39 +88,53 @@ const deleteFile = async (req, res) => {
       await saveMetadata(metadata);
     }
 
-    res.json({ message: 'File deleted' });
+    res.json({ message: 'Folder deleted' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete file' });
+    res.status(500).json({ error: 'Failed to delete folder' });
   }
 };
 
 const renameFile = async (req, res) => {
-  const { filename } = req.params;
+  const filename = req.params[0];
   const { newName } = req.body;
-  try {
-    const mvProcess = spawn('mv', [path.join(mountDir, filename), path.join(mountDir, newName)]);
-    await new Promise((resolve, reject) => {
-      mvProcess.on('close', (code) => {
-        if (code === 0) resolve();
-        else reject(new Error(`mv exited with code ${code}`));
-      });
-    });
+  const newBaseName = newName.replace(/\.[^/.]+$/, "");
+  
+  const oldFolderPath = path.dirname(path.join(mountDir, filename));
+  const parentDir = path.dirname(oldFolderPath);
+  const newFolderPath = path.join(parentDir, newBaseName);
 
+  try {
+    await fs.rename(oldFolderPath, newFolderPath);
+    
+    const files = await fs.readdir(newFolderPath);
+    const oldBaseName = path.basename(oldFolderPath);
+    
+    for (const file of files) {
+       if (file.startsWith(oldBaseName)) {
+           const newFileName = file.replace(oldBaseName, newBaseName);
+           await fs.rename(path.join(newFolderPath, file), path.join(newFolderPath, newFileName));
+       }
+    }
+    
+    const relativeParent = path.dirname(filename);
+    const newRelativeFolder = path.posix.join(path.dirname(relativeParent), newBaseName);
+    const newPosixPath = `${newRelativeFolder}/${newBaseName}.mp4`;
+    
     const metadata = await getMetadata();
     if (metadata[filename]) {
-      metadata[newName] = metadata[filename];
+      metadata[newPosixPath] = metadata[filename];
       delete metadata[filename];
       await saveMetadata(metadata);
     }
 
-    res.json({ message: 'File renamed' });
+    res.json({ message: 'File and folder renamed' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to rename file' });
   }
 };
 
 const updateThumbnail = async (req, res) => {
-  const { filename } = req.params;
+  const filename = req.params[0];
   const { thumbnail, mobileThumbnail } = req.body;
   try {
     const metadata = await getMetadata();
@@ -108,7 +149,7 @@ const updateThumbnail = async (req, res) => {
 };
 
 const updateBanner = async (req, res) => {
-  const { filename } = req.params;
+  const filename = req.params[0];
   const { isBanner } = req.body;
   try {
     const metadata = await getMetadata();
@@ -122,7 +163,7 @@ const updateBanner = async (req, res) => {
 };
 
 const getMediaTracks = async (req, res) => {
-  const { filename } = req.params;
+  const filename = req.params[0];
   const filepath = path.join(mountDir, filename);
 
   try {
@@ -147,24 +188,27 @@ const getMediaTracks = async (req, res) => {
     const parsed = JSON.parse(output);
     const tracks = (parsed.streams || []).map((s, idx) => ({
       id: s.index,
-      index: idx, // 0-based relative index for mapping
+      index: idx,
       codec: s.codec_name,
       language: s.tags?.language || s.tags?.title || `Track ${idx + 1}`
     }));
     
-    // Check which tracks have already been extracted
     const ext = path.extname(filename);
     const baseName = path.basename(filename, ext);
+    const folder = path.dirname(filename);
+    
     for (const track of tracks) {
       if (track.index === 0) {
         track.isDefault = true;
-        track.isExtracted = true; // The original file plays this
+        track.isExtracted = true;
       } else {
         const outName = `${baseName}_audio_${track.id}.m4a`;
+        const outRelativePath = path.posix.join(folder, outName);
         try {
-          await fs.access(path.join(mountDir, outName));
+          await fs.access(path.join(mountDir, outRelativePath));
           track.isExtracted = true;
-          track.url = `/api/public/media/${encodeURIComponent(outName)}`;
+          const encodePath = outRelativePath.split('/').map(encodeURIComponent).join('/');
+          track.url = `/api/public/media/${encodePath}`;
         } catch (e) {
           track.isExtracted = false;
         }
@@ -179,21 +223,23 @@ const getMediaTracks = async (req, res) => {
 };
 
 const extractAudioTrack = async (req, res) => {
-  const { filename } = req.params;
-  const { trackId } = req.body; // use the actual ffprobe stream index
+  const filename = req.params[0];
+  const { trackId } = req.body;
   const filepath = path.join(mountDir, filename);
   
   const ext = path.extname(filename);
   const baseName = path.basename(filename, ext);
+  const folder = path.dirname(filename);
+  
   const outName = `${baseName}_audio_${trackId}.m4a`;
-  const outPath = path.join(mountDir, outName);
+  const outRelativePath = path.posix.join(folder, outName);
+  const outPath = path.join(mountDir, outRelativePath);
 
   try {
     await fs.access(outPath);
-    return res.json({ message: 'Already extracted', url: `/api/public/media/${encodeURIComponent(outName)}` });
-  } catch (e) {
-    // Proceed to extract
-  }
+    const encodePath = outRelativePath.split('/').map(encodeURIComponent).join('/');
+    return res.json({ message: 'Already extracted', url: `/api/public/media/${encodePath}` });
+  } catch (e) {}
 
   const tmpPath = outPath + '.tmp';
 
