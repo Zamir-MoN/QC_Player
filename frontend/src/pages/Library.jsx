@@ -58,6 +58,7 @@ const Library = () => {
   const [editThumbnail, setEditThumbnail] = useState('');
   const [editIsBanner, setEditIsBanner] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const fetchLibrary = async () => {
     setLoading(true);
@@ -78,14 +79,15 @@ const Library = () => {
     fetchLibrary();
   }, []);
 
-  const handleDelete = async (filename) => {
-    if (!window.confirm(`Are you sure you want to delete ${filename}?`)) return;
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`/api/library/${encodeURIComponent(filename)}`, {
+      await axios.delete(`/api/library/${encodeURIComponent(deleteConfirm)}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchLibrary();
+      setDeleteConfirm(null);
     } catch (err) {
       alert('Failed to delete file');
     }
@@ -198,7 +200,7 @@ const Library = () => {
               )}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
                 <button 
-                  onClick={() => handleDelete(file.filename)}
+                  onClick={() => setDeleteConfirm(file.filename)}
                   className="p-2 bg-error/80 hover:bg-error rounded-full text-white transition-colors shadow-lg"
                   title="Delete"
                 >
@@ -326,6 +328,51 @@ const Library = () => {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setDeleteConfirm(null)}
+            ></motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-sm bg-[#1f2026] border border-white/10 rounded-2xl shadow-2xl p-6 overflow-hidden text-center"
+            >
+              <div className="mx-auto w-16 h-16 bg-error/20 rounded-full flex items-center justify-center mb-4">
+                <Trash2 size={32} className="text-error" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Delete Media?</h3>
+              <p className="text-gray-400 text-sm mb-6">
+                Are you sure you want to delete <span className="text-white font-medium">"{deleteConfirm}"</span>? This action cannot be undone.
+              </p>
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setDeleteConfirm(null)}
+                  className="flex-1 py-3 px-4 rounded-xl border border-white/10 hover:bg-white/5 transition-colors font-medium text-gray-300"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleDelete}
+                  className="flex-1 py-3 px-4 rounded-xl bg-error hover:bg-error/90 transition-colors font-medium text-white shadow-lg shadow-error/20"
+                >
+                  Delete
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
