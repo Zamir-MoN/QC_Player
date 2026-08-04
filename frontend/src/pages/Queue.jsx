@@ -23,7 +23,7 @@ const Queue = () => {
     fetchQueue();
 
     // Socket setup
-    const socket = io('');
+    const socket = io('', { path: '/api/socket.io' });
     socket.on('queueUpdate', (updatedQueue) => {
       setQueue(updatedQueue);
     });

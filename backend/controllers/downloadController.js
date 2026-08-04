@@ -108,6 +108,7 @@ const startDownload = async (req, res) => {
     });
 
     await new Promise((resolve, reject) => {
+      ariaProcess.on('error', (err) => reject(new Error(`aria2c spawn failed: ${err.message}`)));
       ariaProcess.on('close', (code) => {
         if (code === 0) resolve();
         else reject(new Error(`aria2c exited with code ${code}`));
@@ -141,6 +142,10 @@ const startDownload = async (req, res) => {
       ]);
 
       await new Promise((resolve) => {
+        ffmpegProcess.on('error', (err) => {
+          console.warn(`FFmpeg spawn failed: ${err.message}. Falling back.`);
+          resolve();
+        });
         ffmpegProcess.on('close', (code) => {
           if (code === 0) {
             finalSourcePath = convertedPath;
@@ -168,6 +173,7 @@ const startDownload = async (req, res) => {
 
     const mvProcess = spawn('mv', [finalSourcePath, destPath]);
     await new Promise((resolve, reject) => {
+      mvProcess.on('error', (err) => reject(new Error(`mv spawn failed: ${err.message}`)));
       mvProcess.on('close', (code) => {
         if (code === 0) resolve();
         else reject(new Error(`mv exited with code ${code}`));
@@ -182,6 +188,7 @@ const startDownload = async (req, res) => {
     // To be safe, run rm on the .aria2 file if it exists, or clear the tempdir content.
     const rmProcess = spawn('rm', ['-rf', tempDir]);
     await new Promise((resolve) => {
+      rmProcess.on('error', () => resolve());
       rmProcess.on('close', () => resolve());
     });
 

@@ -76,6 +76,7 @@ const deleteFile = async (req, res) => {
   try {
     const rmProcess = spawn('rm', ['-rf', folderPath]);
     await new Promise((resolve, reject) => {
+      rmProcess.on('error', (err) => reject(new Error(`rm spawn failed: ${err.message}`)));
       rmProcess.on('close', (code) => {
         if (code === 0) resolve();
         else reject(new Error(`rm exited with code ${code}`));
@@ -179,6 +180,7 @@ const getMediaTracks = async (req, res) => {
     ffprobe.stdout.on('data', (data) => output += data.toString());
     
     await new Promise((resolve, reject) => {
+      ffprobe.on('error', (err) => reject(new Error(`ffprobe spawn failed: ${err.message}`)));
       ffprobe.on('close', (code) => {
         if (code === 0) resolve();
         else reject(new Error('ffprobe failed'));
@@ -255,6 +257,10 @@ const extractAudioTrack = async (req, res) => {
 
     let errOutput = '';
     ffmpeg.stderr.on('data', data => errOutput += data.toString());
+
+    ffmpeg.on('error', (err) => {
+      console.error(`ffmpeg spawn failed: ${err.message}`);
+    });
 
     ffmpeg.on('close', async (code) => {
       if (code === 0) {
