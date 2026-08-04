@@ -129,8 +129,7 @@ const startDownload = async (req, res) => {
         '-y',
         '-nostdin',
         '-i', sourcePath,
-        '-c:v', 'copy',
-        '-c:a', 'aac',
+        '-c', 'copy',
         convertedPath
       ]);
 
