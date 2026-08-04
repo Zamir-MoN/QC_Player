@@ -308,7 +308,7 @@ const Home = () => {
                   <div 
                     key={`cw-${idx}`}
                     onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
-                    className="w-[140px] sm:w-[180px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md md:rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
+                    className="w-[42vw] sm:w-[180px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md md:rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
                   >
                     <div className="w-full h-full rounded-xl overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
                       {video.thumbnail ? (
@@ -381,7 +381,7 @@ const Home = () => {
                 <div 
                   key={idx}
                   onClick={() => navigate(`/player?v=${encodeURIComponent(video.filename)}`)}
-                  className="w-[140px] sm:w-[180px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md md:rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
+                  className="w-[42vw] sm:w-[180px] md:w-[260px] lg:w-[280px] flex-none aspect-video relative cursor-pointer rounded-md md:rounded-xl transition-all duration-300 hover:scale-[1.15] hover:z-50 hover:mx-4 origin-center"
                 >
                   <div className="w-full h-full rounded-xl overflow-hidden bg-card shadow-xl relative group/card border border-transparent hover:border-white/20">
                     {video.thumbnail ? (
