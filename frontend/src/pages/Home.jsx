@@ -225,7 +225,7 @@ const Home = () => {
           initial={{ opacity: 0.5 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          className="relative w-full h-[70vh] md:h-[85vh] flex flex-col justify-end pb-12 md:pb-32 mt-0"
+          className="relative w-full h-[70vh] md:h-[85vh] flex flex-col justify-end pb-20 md:pb-32 mt-0"
         >
           <div className="absolute inset-0 w-full h-full">
             {heroVideo.thumbnail ? (
@@ -286,7 +286,7 @@ const Home = () => {
 
       {/* Continue Watching Carousel */}
       {videos.length > 0 && getContinueWatching().length > 0 && (
-        <div className="relative z-20 -mt-12 md:-mt-16 px-4 md:px-12">
+        <div className="relative z-20 -mt-6 md:-mt-16 px-4 md:px-12">
           <h2 className="text-lg md:text-xl font-bold mb-2">Continue Watching</h2>
           
           <div className="relative group -mx-4 px-4 md:-mx-12 md:px-12">
@@ -299,7 +299,7 @@ const Home = () => {
             
             <div 
               id="slider-continue"
-              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-8 px-2"
+              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-4 px-2"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {getContinueWatching().map((video, idx) => {
@@ -360,7 +360,7 @@ const Home = () => {
 
       {/* Horizontal Carousel */}
       {videos.length > 0 && (
-        <div className={`relative z-20 pb-20 px-4 md:px-12 ${getContinueWatching().length === 0 ? '-mt-12 md:-mt-16' : 'mt-2'}`}>
+        <div className={`relative z-20 pb-16 md:pb-20 px-4 md:px-12 ${getContinueWatching().length === 0 ? '-mt-6 md:-mt-16' : 'mt-2'}`}>
           <h2 className="text-lg md:text-xl font-bold mb-2">Trending Now</h2>
           
           <div className="relative group -mx-4 px-4 md:-mx-12 md:px-12">
@@ -374,7 +374,7 @@ const Home = () => {
             
             <div 
               id="slider"
-              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-8 px-2"
+              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-4 px-2"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {videos.map((video, idx) => (
