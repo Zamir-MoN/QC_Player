@@ -69,7 +69,7 @@ const getLibrary = async (req, res) => {
 };
 
 const deleteFile = async (req, res) => {
-  const filename = req.params[0];
+  const filename = Array.isArray(req.params.filepath) ? req.params.filepath.join('/') : req.params.filepath;
   const fullPath = path.join(mountDir, filename);
   const folderPath = path.dirname(fullPath);
 
@@ -95,7 +95,7 @@ const deleteFile = async (req, res) => {
 };
 
 const renameFile = async (req, res) => {
-  const filename = req.params[0];
+  const filename = Array.isArray(req.params.filepath) ? req.params.filepath.join('/') : req.params.filepath;
   const { newName } = req.body;
   const newBaseName = newName.replace(/\.[^/.]+$/, "");
   
@@ -134,7 +134,7 @@ const renameFile = async (req, res) => {
 };
 
 const updateThumbnail = async (req, res) => {
-  const filename = req.params[0];
+  const filename = Array.isArray(req.params.filepath) ? req.params.filepath.join('/') : req.params.filepath;
   const { thumbnail, mobileThumbnail } = req.body;
   try {
     const metadata = await getMetadata();
@@ -149,7 +149,7 @@ const updateThumbnail = async (req, res) => {
 };
 
 const updateBanner = async (req, res) => {
-  const filename = req.params[0];
+  const filename = Array.isArray(req.params.filepath) ? req.params.filepath.join('/') : req.params.filepath;
   const { isBanner } = req.body;
   try {
     const metadata = await getMetadata();
@@ -163,7 +163,7 @@ const updateBanner = async (req, res) => {
 };
 
 const getMediaTracks = async (req, res) => {
-  const filename = req.params[0];
+  const filename = Array.isArray(req.params.filepath) ? req.params.filepath.join('/') : req.params.filepath;
   const filepath = path.join(mountDir, filename);
 
   try {
@@ -223,7 +223,7 @@ const getMediaTracks = async (req, res) => {
 };
 
 const extractAudioTrack = async (req, res) => {
-  const filename = req.params[0];
+  const filename = Array.isArray(req.params.filepath) ? req.params.filepath.join('/') : req.params.filepath;
   const { trackId } = req.body;
   const filepath = path.join(mountDir, filename);
   

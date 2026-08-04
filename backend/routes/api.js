@@ -29,13 +29,13 @@ router.get('/downloads/queue', verifyToken, downloadController.getQueue);
 // Library routes
 router.get('/public/library', getLibrary);
 router.get('/library', verifyToken, getLibrary);
-router.delete('/library/*', verifyToken, deleteFile);
-router.put('/library/*/thumbnail', verifyToken, updateThumbnail);
-router.put('/library/*/banner', verifyToken, updateBanner);
-router.put('/library/*', verifyToken, renameFile);
+router.delete('/library/*filepath', verifyToken, deleteFile);
+router.put('/library/*filepath/thumbnail', verifyToken, updateThumbnail);
+router.put('/library/*filepath/banner', verifyToken, updateBanner);
+router.put('/library/*filepath', verifyToken, renameFile);
 
 // Media processing routes
-router.get('/public/media/*/tracks', getMediaTracks);
-router.post('/public/media/*/extract-audio', extractAudioTrack);
+router.get('/public/media/*filepath/tracks', getMediaTracks);
+router.post('/public/media/*filepath/extract-audio', extractAudioTrack);
 
 module.exports = router;
