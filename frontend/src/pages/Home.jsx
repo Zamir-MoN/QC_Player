@@ -131,9 +131,9 @@ const Home = () => {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <div className={`flex items-center bg-black/40 border transition-all duration-300 rounded-sm ${isSearchOpen ? 'border-white/80 px-2 py-1' : 'border-transparent px-0 py-0'}`}>
+          <div className={`flex items-center border transition-all duration-300 rounded-sm ${isSearchOpen ? 'bg-black/40 border-white/80 px-2 py-1' : 'bg-transparent border-transparent px-0 py-0'}`}>
             <Search 
-              className={`w-5 h-5 cursor-pointer transition-colors ${isSearchOpen ? 'text-white mr-2' : 'text-white hover:text-white/60'}`} 
+              className={`w-6 h-6 cursor-pointer transition-colors ${isSearchOpen ? 'text-white mr-2' : 'text-white hover:text-white/60'}`} 
               onClick={() => setIsSearchOpen(true)} 
             />
             {isSearchOpen && (
