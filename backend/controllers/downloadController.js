@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid'); // Need to install uuid
 
 let ioInstance;
 const queue = new Map();
+let isProcessingQueue = false;
 
 const setIo = (io) => {
   ioInstance = io;
@@ -66,7 +67,10 @@ const startDownload = async (req, res) => {
       progress: '0%',
       speed: '0 KB/s',
       eta: 'Unknown',
-      step: 'Initializing'
+      step: 'Initializing',
+      tempDir,
+      mountDir,
+      finalFilename
     };
 
     queue.set(id, downloadTask);
@@ -77,7 +81,36 @@ const startDownload = async (req, res) => {
     return res.status(500).json({ error: 'Failed to initialize download: ' + initError.message });
   }
 
-  // Run workflow asynchronously
+  // Trigger queue processing
+  processQueue();
+};
+
+const processQueue = async () => {
+  if (isProcessingQueue) return;
+  isProcessingQueue = true;
+
+  try {
+    while (true) {
+      let nextTask = null;
+      for (const task of queue.values()) {
+        if (task.status === 'Waiting') {
+          nextTask = task;
+          break;
+        }
+      }
+
+      if (!nextTask) break; // Nothing to process
+
+      await executeDownloadWorkflow(nextTask);
+    }
+  } finally {
+    isProcessingQueue = false;
+  }
+};
+
+const executeDownloadWorkflow = async (downloadTask) => {
+  const { url, category, tempDir, mountDir, finalFilename } = downloadTask;
+  
   try {
     // STEP 1: Create temp folder
     downloadTask.step = 'Creating Temp Folder';
