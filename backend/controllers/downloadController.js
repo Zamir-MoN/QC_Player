@@ -124,19 +124,42 @@ const startDownload = async (req, res) => {
     // STEP 3: Convert to MP4 using ffmpeg
     downloadTask.status = 'Converting';
     downloadTask.step = 'Converting to MP4';
+    downloadTask.progress = '0%';
     broadcastQueue();
 
     const sourcePath = path.join(tempDir, finalFilename);
-    const mp4Filename = finalFilename.includes('.') ? finalFilename.replace(/\\.[^/.]+$/, ".mp4") : finalFilename + ".mp4";
+    const mp4Filename = finalFilename.includes('.') ? finalFilename.replace(/\.[^/.]+$/, ".mp4") : finalFilename + ".mp4";
     const convertedPath = path.join(tempDir, mp4Filename);
     
     let finalSourcePath = sourcePath;
     let finalDestFilename = finalFilename;
 
+    // Fetch total duration for progress bars
+    let totalDuration = 0;
+    try {
+      const probeProc = spawn('ffprobe', [
+        '-v', 'error',
+        '-show_entries', 'format=duration',
+        '-of', 'default=noprint_wrappers=1:nokey=1',
+        sourcePath
+      ]);
+      let probeOut = '';
+      probeProc.stdout.on('data', data => probeOut += data.toString());
+      await new Promise((resolve) => {
+        probeProc.on('error', () => resolve());
+        probeProc.on('close', () => resolve());
+      });
+      if (probeOut.trim()) {
+        totalDuration = parseFloat(probeOut.trim());
+      }
+    } catch (e) {
+      console.warn('Failed to get duration', e);
+    }
+
     // Attempt conversion on all files that are not already .mp4
     // FFmpeg is smart enough to detect video files even without an extension.
     // If it's not a video (like a zip file), it will gracefully fail and fallback to the original file.
-    if (!finalFilename.match(/\\.mp4$/i)) {
+    if (!finalFilename.match(/\.mp4$/i)) {
       const ffmpegProcess = spawn('ffmpeg', [
         '-y',
         '-nostdin',
@@ -146,6 +169,20 @@ const startDownload = async (req, res) => {
         '-c', 'copy',
         convertedPath
       ]);
+
+      ffmpegProcess.stderr.on('data', data => {
+        const str = data.toString();
+        const timeMatch = str.match(/time=(\d{2}):(\d{2}):(\d{2}\.\d{2})/);
+        if (timeMatch && totalDuration > 0) {
+          const h = parseInt(timeMatch[1], 10);
+          const m = parseInt(timeMatch[2], 10);
+          const s = parseFloat(timeMatch[3]);
+          const timeInSec = h * 3600 + m * 60 + s;
+          const percent = Math.min(100, Math.round((timeInSec / totalDuration) * 100));
+          downloadTask.progress = `${percent}%`;
+          broadcastQueue();
+        }
+      });
 
       await new Promise((resolve) => {
         ffmpegProcess.on('error', (err) => {
@@ -167,6 +204,7 @@ const startDownload = async (req, res) => {
     // STEP 4: Move file
     downloadTask.status = 'Uploading';
     downloadTask.step = 'Moving file to Mount';
+    downloadTask.progress = '100%';
     broadcastQueue();
 
     const categoryFolder = category === 'Movies' ? 'Movies' : 'Web Series';
@@ -189,6 +227,7 @@ const startDownload = async (req, res) => {
     // STEP 5: Extract Audio Tracks
     downloadTask.status = 'Extracting Audio';
     downloadTask.step = 'Extracting alternate audio tracks';
+    downloadTask.progress = '0%';
     broadcastQueue();
 
     try {
@@ -231,6 +270,20 @@ const startDownload = async (req, res) => {
               '-y',
               outPath
             ]);
+
+            ffmpeg.stderr.on('data', data => {
+              const str = data.toString();
+              const timeMatch = str.match(/time=(\d{2}):(\d{2}):(\d{2}\.\d{2})/);
+              if (timeMatch && totalDuration > 0) {
+                const h = parseInt(timeMatch[1], 10);
+                const m = parseInt(timeMatch[2], 10);
+                const s = parseFloat(timeMatch[3]);
+                const timeInSec = h * 3600 + m * 60 + s;
+                const percent = Math.min(100, Math.round((timeInSec / totalDuration) * 100));
+                downloadTask.progress = `${percent}%`;
+                broadcastQueue();
+              }
+            });
 
             await new Promise((resolve) => {
               ffmpeg.on('error', () => resolve());

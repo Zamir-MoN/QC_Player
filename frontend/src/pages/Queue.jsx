@@ -75,7 +75,7 @@ const Queue = () => {
                 className="glassmorphism p-6 rounded-2xl border border-white/5 relative overflow-hidden"
               >
                 {/* Background Progress Bar */}
-                {item.status === 'Downloading' && (
+                {item.progress && (
                   <div 
                     className="absolute inset-0 bg-accent/5 transition-all duration-300 ease-out z-0" 
                     style={{ width: item.progress }}
@@ -99,11 +99,11 @@ const Queue = () => {
                     </div>
                   </div>
 
-                  {item.status === 'Downloading' && (
+                  {item.progress && (
                     <div className="flex flex-row md:flex-col items-center md:items-end gap-4 md:gap-1 text-sm font-medium w-full md:w-auto">
                       <div className="text-accent">{item.progress}</div>
-                      <div className="text-gray-400">{item.speed}</div>
-                      <div className="text-gray-500 text-xs">ETA: {item.eta}</div>
+                      {item.status === 'Downloading' && <div className="text-gray-400">{item.speed}</div>}
+                      {item.status === 'Downloading' && <div className="text-gray-500 text-xs">ETA: {item.eta}</div>}
                     </div>
                   )}
                 </div>
