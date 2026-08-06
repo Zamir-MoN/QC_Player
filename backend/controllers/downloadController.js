@@ -32,6 +32,7 @@ const refreshJellyfin = async () => {
 };
 
 const startDownload = async (req, res) => {
+  let downloadTask;
   try {
     const { url, name, category, tag } = req.body;
     if (!url) return res.status(400).json({ error: 'URL is required' });
@@ -51,7 +52,7 @@ const startDownload = async (req, res) => {
       }
     }
 
-    const downloadTask = {
+    downloadTask = {
       id,
       url,
       name: finalFilename,
