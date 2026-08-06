@@ -454,7 +454,7 @@ const Player = () => {
             
             {/* Settings Menu (Speed/Quality) */}
             <div className="relative">
-              <button onClick={() => setShowSettings(!showSettings)} className={`hover:text-accent transition-colors ${showSettings ? 'text-accent' : ''} ${playbackSpeed !== 1 ? 'animate-pulse' : ''}`}>
+              <button onClick={() => { setShowSettings(!showSettings); setShowAudioMenu(false); }} className={`hover:text-accent transition-colors ${showSettings ? 'text-accent' : ''} ${playbackSpeed !== 1 ? 'animate-pulse' : ''}`}>
                 <Settings className="w-6 h-6" />
               </button>
               
@@ -488,7 +488,7 @@ const Player = () => {
             {/* Audio Track Menu */}
             {audioTracks.length > 1 && (
               <div className="relative">
-                <button onClick={() => setShowAudioMenu(!showAudioMenu)} className={`hover:text-accent transition-colors ${showAudioMenu ? 'text-accent' : ''}`} title="Audio Tracks">
+                <button onClick={() => { setShowAudioMenu(!showAudioMenu); setShowSettings(false); }} className={`hover:text-accent transition-colors ${showAudioMenu ? 'text-accent' : ''}`} title="Audio Tracks">
                   <Headphones className="w-6 h-6" />
                 </button>
                 
