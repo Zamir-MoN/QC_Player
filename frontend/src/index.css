@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+  @font-face {
+    font-family: 'Helicopter';
+    src: url('/fonts/BringMeAHelicopter.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
   body {
     @apply bg-background text-white font-sans antialiased;
   }

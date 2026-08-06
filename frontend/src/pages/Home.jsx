@@ -121,7 +121,7 @@ const Home = () => {
       {/* Navbar */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-500 p-4 md:px-12 flex items-center justify-between ${scrolled ? 'bg-black/20 backdrop-blur-md shadow-xl' : 'bg-transparent backdrop-blur-sm'}`}>
         <div className={`flex items-center gap-4 md:gap-8 transition-all duration-300 ${isSearchOpen ? 'w-0 overflow-hidden md:w-auto md:overflow-visible' : 'w-auto'}`}>
-          <h1 className="text-3xl font-extrabold text-accent tracking-tighter cursor-pointer" onClick={() => {setSearchQuery(''); setIsSearchOpen(false);}}>
+          <h1 className="text-3xl font-extrabold text-accent tracking-tighter cursor-pointer font-['Helicopter']" onClick={() => {setSearchQuery(''); setIsSearchOpen(false);}}>
             QCFlex
           </h1>
           <nav className="hidden md:flex gap-4 text-sm font-medium text-white/80">
