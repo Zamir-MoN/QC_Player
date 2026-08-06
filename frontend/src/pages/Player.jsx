@@ -159,6 +159,15 @@ const Player = () => {
   };
 
   const toggleControls = () => {
+    // Attempt to go fullscreen on first interaction on mobile
+    if (window.innerWidth <= 768 && !document.fullscreenElement) {
+      playerContainerRef.current.requestFullscreen().then(() => {
+        if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+          window.screen.orientation.lock('landscape').catch(e => console.log(e));
+        }
+      }).catch(e => console.log(e));
+    }
+
     setShowControls(prev => {
       if (prev) {
         if (hideControlsTimeoutRef.current) clearTimeout(hideControlsTimeoutRef.current);
