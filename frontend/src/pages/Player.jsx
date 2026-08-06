@@ -31,6 +31,7 @@ const Player = () => {
   const playerContainerRef = useRef(null);
   const hideControlsTimeoutRef = useRef(null);
   const syncAnimationFrame = useRef(null);
+  const clickTimeoutRef = useRef(null);
 
   const [audioTracks, setAudioTracks] = useState([]);
   const [selectedTrack, setSelectedTrack] = useState(0); // 0 is default
@@ -176,6 +177,25 @@ const Player = () => {
     }
   };
 
+  const handleVideoClick = () => {
+    if (clickTimeoutRef.current) {
+      // Double click occurred
+      clearTimeout(clickTimeoutRef.current);
+      clickTimeoutRef.current = null;
+      togglePlay();
+    } else {
+      // Single click - wait to see if it becomes a double click
+      clickTimeoutRef.current = setTimeout(() => {
+        clickTimeoutRef.current = null;
+        // Toggle controls visibility on single tap
+        setShowControls(prev => {
+          if (!prev) handleMouseMove(); // trigger auto-hide logic if opening
+          return !prev;
+        });
+      }, 250); // 250ms delay for double tap detection
+    }
+  };
+
   const handleVolumeChange = (newVolume) => {
     const val = parseFloat(newVolume);
     setVolume(val);
@@ -311,7 +331,7 @@ const Player = () => {
         ref={videoRef}
         src={videoUrl}
         className="w-full h-full object-contain cursor-pointer"
-        onClick={togglePlay}
+        onClick={handleVideoClick}
         onTimeUpdate={() => {
           if (!videoRef.current) return;
           const time = videoRef.current.currentTime;
