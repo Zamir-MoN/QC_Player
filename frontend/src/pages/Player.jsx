@@ -201,11 +201,19 @@ const Player = () => {
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      playerContainerRef.current.requestFullscreen().catch(err => {
+      playerContainerRef.current.requestFullscreen().then(() => {
+        if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+          window.screen.orientation.lock('landscape').catch(err => console.log("Orientation lock failed:", err));
+        }
+      }).catch(err => {
         console.error(`Error attempting to enable fullscreen: ${err.message}`);
       });
     } else {
-      document.exitFullscreen();
+      document.exitFullscreen().then(() => {
+        if (window.screen && window.screen.orientation && window.screen.orientation.unlock) {
+          window.screen.orientation.unlock();
+        }
+      });
     }
   };
 
@@ -356,6 +364,7 @@ const Player = () => {
         onSeeked={() => setIsBuffering(false)}
         onStalled={() => setIsBuffering(true)}
         autoPlay
+        playsInline
       />
 
       {/* Buffering or Extracting Spinner */}
