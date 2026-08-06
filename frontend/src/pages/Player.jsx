@@ -158,10 +158,39 @@ const Player = () => {
     }, 3000);
   };
 
+  const toggleControls = () => {
+    setShowControls(prev => {
+      if (prev) {
+        if (hideControlsTimeoutRef.current) clearTimeout(hideControlsTimeoutRef.current);
+        setShowSettings(false);
+        setShowAudioMenu(false);
+        return false;
+      } else {
+        if (hideControlsTimeoutRef.current) clearTimeout(hideControlsTimeoutRef.current);
+        hideControlsTimeoutRef.current = setTimeout(() => {
+          if (isPlaying) {
+            setShowControls(false);
+            setShowSettings(false);
+            setShowAudioMenu(false);
+          }
+        }, 3000);
+        return true;
+      }
+    });
+  };
+
   const togglePlay = () => {
     if (videoRef.current.paused) {
       videoRef.current.play();
       setIsPlaying(true);
+      // Auto fullscreen on mobile when playing
+      if (window.innerWidth <= 768 && !document.fullscreenElement) {
+        playerContainerRef.current.requestFullscreen().then(() => {
+          if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+            window.screen.orientation.lock('landscape').catch(e => console.log("Orientation lock failed:", e));
+          }
+        }).catch(e => console.log(e));
+      }
     } else {
       videoRef.current.pause();
       setIsPlaying(false);
@@ -294,7 +323,9 @@ const Player = () => {
     <div 
       ref={playerContainerRef}
       className="relative w-full h-screen bg-black overflow-hidden select-none font-sans group"
-      onMouseMove={handleMouseMove}
+      onPointerMove={(e) => {
+        if (e.pointerType === 'mouse') handleMouseMove();
+      }}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
       {/* Hidden Audio Element for alternative tracks */}
@@ -312,7 +343,7 @@ const Player = () => {
         ref={videoRef}
         src={videoUrl}
         className="w-full h-full object-contain cursor-pointer"
-        onClick={handleMouseMove}
+        onClick={toggleControls}
         onDoubleClick={togglePlay}
         onTimeUpdate={() => {
           if (!videoRef.current) return;
