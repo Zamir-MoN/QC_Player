@@ -37,7 +37,8 @@ const Player = () => {
   const [selectedTrack, setSelectedTrack] = useState(0); // 0 is default
   const [isExtractingAudio, setIsExtractingAudio] = useState(false);
 
-  const [isPlaying, setIsPlaying] = useState(false);
+  const isMobile = window.innerWidth <= 768;
+  const [isPlaying, setIsPlaying] = useState(!isMobile);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
@@ -48,7 +49,7 @@ const Player = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
+  const [hasStarted, setHasStarted] = useState(!isMobile);
   const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
@@ -406,6 +407,7 @@ const Player = () => {
         onCanPlayThrough={() => setIsBuffering(false)}
         onSeeked={() => setIsBuffering(false)}
         onStalled={() => setIsBuffering(true)}
+        autoPlay={!isMobile}
         playsInline
       />
 
