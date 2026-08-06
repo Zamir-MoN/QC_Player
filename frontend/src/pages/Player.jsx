@@ -322,7 +322,7 @@ const Player = () => {
   return (
     <div 
       ref={playerContainerRef}
-      className="relative w-full h-screen bg-black overflow-hidden select-none font-sans group"
+      className="relative w-full h-screen bg-black overflow-hidden select-none font-sans group force-landscape"
       onPointerMove={(e) => {
         if (e.pointerType === 'mouse') handleMouseMove();
       }}

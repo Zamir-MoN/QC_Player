@@ -20,4 +20,17 @@
   .glassmorphism {
     @apply bg-card/80 backdrop-blur-md border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)];
   }
+
+  @media screen and (orientation: portrait) and (max-width: 768px) {
+    .force-landscape {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      width: 100vh !important;
+      height: 100vw !important;
+      transform: translate(-50%, -50%) rotate(90deg) !important;
+      transform-origin: center center !important;
+      z-index: 50 !important;
+    }
+  }
 }
