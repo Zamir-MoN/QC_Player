@@ -186,6 +186,63 @@ const startDownload = async (req, res) => {
       });
     });
 
+    // STEP 5: Extract Audio Tracks
+    downloadTask.status = 'Extracting Audio';
+    downloadTask.step = 'Extracting alternate audio tracks';
+    broadcastQueue();
+
+    try {
+      const ffprobe = spawn('ffprobe', [
+        '-v', 'error',
+        '-select_streams', 'a',
+        '-show_entries', 'stream=index,codec_name:stream_tags=language,title',
+        '-of', 'json',
+        destPath
+      ]);
+
+      let output = '';
+      ffprobe.stdout.on('data', (data) => output += data.toString());
+      
+      await new Promise((resolve) => {
+        ffprobe.on('error', () => resolve());
+        ffprobe.on('close', () => resolve());
+      });
+
+      if (output) {
+        const parsed = JSON.parse(output);
+        const tracks = parsed.streams || [];
+        
+        for (const track of tracks) {
+          // Skip the default track (index 0)
+          if (track.index !== 0) {
+            const trackId = track.index;
+            const ext = path.extname(finalDestFilename);
+            const baseName = path.basename(finalDestFilename, ext);
+            
+            const outName = `${baseName}_audio_${trackId}.m4a`;
+            const outPath = path.join(destDir, outName);
+            
+            // Extract the track
+            const ffmpeg = spawn('ffmpeg', [
+              '-i', destPath,
+              '-map', `0:${trackId}`,
+              '-c:a', 'aac',
+              '-b:a', '192k',
+              '-y',
+              outPath
+            ]);
+
+            await new Promise((resolve) => {
+              ffmpeg.on('error', () => resolve());
+              ffmpeg.on('close', () => resolve());
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to automatically extract audio tracks:", err);
+    }
+
     // STEP 6: Delete temp files
     downloadTask.step = 'Cleaning up';
     broadcastQueue();
