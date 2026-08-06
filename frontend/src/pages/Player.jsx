@@ -19,6 +19,8 @@ const formatTime = (timeInSeconds) => {
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
 
+const encodePath = (p) => p.split('/').map(encodeURIComponent).join('/');
+
 const Player = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
