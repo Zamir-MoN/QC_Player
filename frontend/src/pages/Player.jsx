@@ -279,7 +279,7 @@ const Player = () => {
   }
 
   const videoUrl = `/api/public/media/${encodeURIComponent(filename)}`;
-  const title = filename.replace(/\.[^/.]+$/, "");
+  const title = filename.split('/').pop().replace(/\.[^/.]+$/, "");
 
   return (
     <div 

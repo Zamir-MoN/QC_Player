@@ -88,7 +88,7 @@ const Queue = () => {
                       {getStatusIcon(item.status)}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-lg">{item.name}</h4>
+                      <h4 className="font-semibold text-lg">{item.name.split('/').pop()}</h4>
                       <p className="text-sm text-gray-400 flex items-center gap-2">
                         <span className={`font-medium ${getStatusColor(item.status)}`}>{item.status}</span>
                         <span>•</span>

@@ -100,13 +100,13 @@ const Library = () => {
     setEditingFile(file);
     
     // Parse tag from filename if exists (e.g. "Movie [4K].mp4")
-    const match = file.filename.match(/ \[([^\]]+)\](\.[^/.]+)$/);
-    if (match && ['HQ', 'HD', '4K'].includes(match[1])) {
+    const match = file.filename.split('/').pop().match(/ \[([^\]]+)\](\.[^/.]+)$/);
+    if (match) {
       setEditTag(match[1]);
-      setEditName(file.filename.replace(` [${match[1]}]`, ''));
+      setEditName(file.filename.split('/').pop().replace(` [${match[1]}]`, ''));
     } else {
-      setEditTag('None');
-      setEditName(file.filename);
+      setEditTag('Original');
+      setEditName(file.filename.split('/').pop());
     }
     
     setEditThumbnail(file.thumbnail || '');
@@ -230,8 +230,8 @@ const Library = () => {
             </div>
             
             <div className="p-4">
-              <h4 className="font-semibold text-sm truncate" title={file.filename}>
-                {file.filename}
+              <h4 className="font-semibold text-sm truncate" title={file.filename.split('/').pop()}>
+                {file.filename.split('/').pop()}
               </h4>
               <div className="flex justify-between items-center mt-2 text-xs text-gray-400">
                 <span>{file.size}</span>
