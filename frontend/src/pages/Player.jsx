@@ -4,7 +4,7 @@ import axios from 'axios';
 import { 
   ArrowLeft, Play, Pause, Volume2, VolumeX, 
   Maximize, Minimize, Settings, FastForward, Rewind,
-  Headphones
+  Headphones, ZoomIn, ZoomOut
 } from 'lucide-react';
 
 const formatTime = (timeInSeconds) => {
@@ -49,6 +49,7 @@ const Player = () => {
   const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
     if (!filename) return;
@@ -351,7 +352,7 @@ const Player = () => {
       <video
         ref={videoRef}
         src={videoUrl}
-        className="w-full h-full object-contain cursor-pointer"
+        className={`w-full h-full cursor-pointer transition-all duration-300 ${isZoomed ? 'object-cover' : 'object-contain'}`}
         onClick={toggleControls}
         onDoubleClick={togglePlay}
         onTimeUpdate={() => {
@@ -576,6 +577,10 @@ const Player = () => {
                 )}
               </div>
             )}
+
+            <button onClick={() => setIsZoomed(!isZoomed)} className="hover:text-accent transition-colors" title={isZoomed ? "Fit to Screen" : "Zoom to Fill"}>
+              {isZoomed ? <ZoomOut className="w-6 h-6" /> : <ZoomIn className="w-6 h-6" />}
+            </button>
 
             <button onClick={toggleFullscreen} className="hover:text-accent transition-colors">
               {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
