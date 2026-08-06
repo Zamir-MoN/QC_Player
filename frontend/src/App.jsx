@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import Sidebar from './components/Sidebar';
 import TopHeader from './components/TopHeader';
 import Login from './pages/Login';
@@ -31,6 +32,20 @@ const Layout = ({ children }) => {
 };
 
 function App() {
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => axios.interceptors.response.eject(interceptor);
+  }, []);
+
   return (
     <Router>
       <Routes>

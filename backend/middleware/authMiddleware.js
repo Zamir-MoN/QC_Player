@@ -5,7 +5,12 @@ const verifyToken = (req, res, next) => {
   if (!token) return res.status(403).json({ error: 'No token provided.' });
 
   jwt.verify(token.split(' ')[1], process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(500).json({ error: 'Failed to authenticate token.' });
+    if (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Token expired, please log in again.' });
+      }
+      return res.status(401).json({ error: 'Failed to authenticate token.' });
+    }
     req.userId = decoded.id;
     next();
   });
