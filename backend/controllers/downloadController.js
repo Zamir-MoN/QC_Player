@@ -32,15 +32,20 @@ const refreshJellyfin = async () => {
 };
 
 const startDownload = async (req, res) => {
-  let downloadTask;
+  let downloadTask, tempDir, mountDir, finalFilename, url, category, id;
   try {
-    const { url, name, category, tag } = req.body;
+    const body = req.body;
+    url = body.url;
+    const name = body.name;
+    category = body.category;
+    const tag = body.tag;
+    
     if (!url) return res.status(400).json({ error: 'URL is required' });
 
-    const id = uuidv4();
-    const tempDir = process.env.TEMP_DIR || '/tmp/qcplayer';
-    const mountDir = process.env.MOUNT_DIR || '/home/ubuntu/QC_Player/Movies/VPS Uploads';
-    let finalFilename = name ? name : url.split('/').pop().split('?')[0] || 'downloaded_file';
+    id = uuidv4();
+    tempDir = process.env.TEMP_DIR || '/tmp/qcplayer';
+    mountDir = process.env.MOUNT_DIR || '/home/ubuntu/QC_Player/Movies/VPS Uploads';
+    finalFilename = name ? name : url.split('/').pop().split('?')[0] || 'downloaded_file';
 
     // Append quality tag to filename if provided
     if (tag) {
