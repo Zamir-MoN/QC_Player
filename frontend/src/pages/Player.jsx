@@ -4,7 +4,7 @@ import axios from 'axios';
 import { 
   ArrowLeft, Play, Pause, Volume2, VolumeX, 
   Maximize, Minimize, Settings, FastForward, Rewind,
-  Monitor
+  Headphones
 } from 'lucide-react';
 
 const formatTime = (timeInSeconds) => {
@@ -45,6 +45,7 @@ const Player = () => {
   const [showControls, setShowControls] = useState(true);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
+  const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [isBuffering, setIsBuffering] = useState(true);
 
   useEffect(() => {
@@ -151,6 +152,7 @@ const Player = () => {
       if (isPlaying) {
         setShowControls(false);
         setShowSettings(false);
+        setShowAudioMenu(false);
       }
     }, 3000);
   };
@@ -478,29 +480,40 @@ const Player = () => {
                     </button>
                   ))}
                   
-                  {audioTracks.length > 1 && (
-                    <>
-                      <div className="h-px bg-white/10 my-2"></div>
-                      <div className="px-3 py-2 text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">Audio Language</div>
-                      {audioTracks.map(track => (
-                        <button 
-                          key={track.id}
-                          onClick={() => handleTrackChange(track)}
-                          className={`w-full text-left px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors flex justify-between ${selectedTrack === track.index ? 'text-accent font-medium' : ''}`}
-                        >
-                          <span>{track.language}</span>
-                          {selectedTrack === track.index && <span>✓</span>}
-                        </button>
-                      ))}
-                    </>
-                  )}
+                  {/* Audio tracks have been moved to a dedicated button */}
                 </div>
               )}
             </div>
 
-            <button onClick={togglePiP} className="hover:text-accent transition-colors hidden sm:block" title="Picture in Picture">
-              <Monitor className="w-6 h-6" />
-            </button>
+            {/* Audio Track Menu */}
+            {audioTracks.length > 1 && (
+              <div className="relative">
+                <button onClick={() => setShowAudioMenu(!showAudioMenu)} className={`hover:text-accent transition-colors ${showAudioMenu ? 'text-accent' : ''}`} title="Audio Tracks">
+                  <Headphones className="w-6 h-6" />
+                </button>
+                
+                {/* Audio Dropdown */}
+                {showAudioMenu && (
+                  <div className="absolute bottom-full right-0 mb-4 bg-black/90 border border-white/10 rounded-xl p-2 min-w-[150px] backdrop-blur-xl shadow-2xl origin-bottom-right animate-in zoom-in-95 fade-in">
+                    <div className="px-3 py-2 text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">Audio Track</div>
+                    {audioTracks.map(track => (
+                      <button 
+                        key={track.id}
+                        onClick={() => {
+                          handleTrackChange(track);
+                          setShowAudioMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors flex justify-between ${selectedTrack === track.index ? 'text-accent font-medium' : ''}`}
+                      >
+                        <span>{track.language}</span>
+                        {selectedTrack === track.index && <span>✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             <button onClick={toggleFullscreen} className="hover:text-accent transition-colors">
               {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
             </button>
