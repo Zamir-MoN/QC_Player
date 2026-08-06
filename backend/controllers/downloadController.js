@@ -254,6 +254,14 @@ const startDownload = async (req, res) => {
         for (const track of tracks) {
           // Skip the default track (index 0)
           if (track.index !== 0) {
+            // Filter by language (Hindi or English)
+            const lang = String(track.tags?.language || track.tags?.title || 'und').toLowerCase();
+            const keep = lang.includes('hin') || lang.includes('eng') || lang.includes('hindi') || lang.includes('english');
+            
+            if (!keep) {
+              continue;
+            }
+
             const trackId = track.index;
             const ext = path.extname(finalDestFilename);
             const baseName = path.basename(finalDestFilename, ext);
@@ -261,12 +269,18 @@ const startDownload = async (req, res) => {
             const outName = `${baseName}_audio_${trackId}.m4a`;
             const outPath = path.join(destDir, outName);
             
+            // Determine codec: copy if supported natively (aac/mp3), otherwise transcode to aac
+            const codecName = track.codec_name;
+            const isSupported = ['aac', 'mp3'].includes(codecName);
+            const audioArgs = isSupported 
+              ? ['-c:a', 'copy'] 
+              : ['-c:a', 'aac', '-b:a', '192k'];
+
             // Extract the track
             const ffmpeg = spawn('ffmpeg', [
               '-i', destPath,
               '-map', `0:${trackId}`,
-              '-c:a', 'aac',
-              '-b:a', '192k',
+              ...audioArgs,
               '-y',
               outPath
             ]);
