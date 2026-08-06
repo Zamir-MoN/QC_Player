@@ -18,7 +18,10 @@ const Dashboard = () => {
         console.error(err);
       }
     };
+    
     fetchStatus();
+    const interval = setInterval(fetchStatus, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const Card = ({ title, value, icon: Icon, colorClass }) => (
@@ -43,15 +46,15 @@ const Dashboard = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card title="Disk Usage" value={status.diskUsage} icon={HardDrive} colorClass="bg-accent" />
-        <Card title="Movies Count" value="N/A" icon={Film} colorClass="bg-success" />
-        <Card title="Current Upload" value="0" icon={UploadCloud} colorClass="bg-warning" />
-        <Card title="Current Download" value="0" icon={DownloadCloud} colorClass="bg-error" />
+        <Card title="Movies Count" value={status.moviesCount} icon={Film} colorClass="bg-success" />
+        <Card title="Current Upload" value={status.currentUpload || '0 B/s'} icon={UploadCloud} colorClass="bg-warning" />
+        <Card title="Current Download" value={status.currentDownload || '0 B/s'} icon={DownloadCloud} colorClass="bg-error" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
         <Card title="RAM Usage" value={status.ramUsage} icon={Database} colorClass="bg-purple-500" />
         <Card title="CPU Usage" value={status.cpuUsage} icon={Cpu} colorClass="bg-blue-500" />
-        <Card title="Network Speed" value="Unknown" icon={Activity} colorClass="bg-pink-500" />
+        <Card title="Network Speed" value={status.networkSpeed || '0 B/s'} icon={Activity} colorClass="bg-pink-500" />
       </div>
     </div>
   );
