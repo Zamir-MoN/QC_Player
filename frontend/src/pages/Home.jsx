@@ -14,10 +14,10 @@ const Home = () => {
   const navigate = useNavigate();
 
   const parseVideoInfo = (filename) => {
-    let cleanName = filename.replace(/\.[^/.]+$/, "");
+    let cleanName = filename.split('/').pop().replace(/\.[^/.]+$/, "");
     let tag = null;
     const match = cleanName.match(/ \[([^\]]+)\]$/);
-    if (match && ['HQ', 'HD', '4K'].includes(match[1])) {
+    if (match) {
       tag = match[1];
       cleanName = cleanName.replace(` [${tag}]`, '');
     }
