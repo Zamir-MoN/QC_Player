@@ -37,7 +37,7 @@ const Player = () => {
   const [selectedTrack, setSelectedTrack] = useState(0); // 0 is default
   const [isExtractingAudio, setIsExtractingAudio] = useState(false);
 
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
@@ -47,7 +47,8 @@ const Player = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
   const [showAudioMenu, setShowAudioMenu] = useState(false);
-  const [isBuffering, setIsBuffering] = useState(true);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     if (!filename) return;
@@ -159,15 +160,6 @@ const Player = () => {
   };
 
   const toggleControls = () => {
-    // Attempt to go fullscreen on first interaction on mobile
-    if (window.innerWidth <= 768 && !document.fullscreenElement) {
-      playerContainerRef.current.requestFullscreen().then(() => {
-        if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
-          window.screen.orientation.lock('landscape').catch(e => console.log(e));
-        }
-      }).catch(e => console.log(e));
-    }
-
     setShowControls(prev => {
       if (prev) {
         if (hideControlsTimeoutRef.current) clearTimeout(hideControlsTimeoutRef.current);
@@ -192,18 +184,26 @@ const Player = () => {
     if (videoRef.current.paused) {
       videoRef.current.play();
       setIsPlaying(true);
-      // Auto fullscreen on mobile when playing
-      if (window.innerWidth <= 768 && !document.fullscreenElement) {
-        playerContainerRef.current.requestFullscreen().then(() => {
-          if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
-            window.screen.orientation.lock('landscape').catch(e => console.log("Orientation lock failed:", e));
-          }
-        }).catch(e => console.log(e));
-      }
     } else {
       videoRef.current.pause();
       setIsPlaying(false);
       setShowControls(true); // Keep controls visible when paused
+    }
+  };
+
+  const handleStart = () => {
+    setHasStarted(true);
+    if (videoRef.current) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+    // Force fullscreen and landscape immediately
+    if (!document.fullscreenElement) {
+      playerContainerRef.current.requestFullscreen().then(() => {
+        if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+          window.screen.orientation.lock('landscape').catch(e => console.log("Orientation lock failed:", e));
+        }
+      }).catch(e => console.log(e));
     }
   };
 
@@ -331,9 +331,9 @@ const Player = () => {
   return (
     <div 
       ref={playerContainerRef}
-      className="relative w-full h-screen bg-black overflow-hidden select-none font-sans group force-landscape"
+      className="relative w-full h-screen bg-black overflow-hidden select-none font-sans group"
       onPointerMove={(e) => {
-        if (e.pointerType === 'mouse') handleMouseMove();
+        if (e.pointerType === 'mouse' && hasStarted) handleMouseMove();
       }}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
@@ -405,12 +405,11 @@ const Player = () => {
         onCanPlayThrough={() => setIsBuffering(false)}
         onSeeked={() => setIsBuffering(false)}
         onStalled={() => setIsBuffering(true)}
-        autoPlay
         playsInline
       />
 
       {/* Buffering or Extracting Spinner */}
-      {(isBuffering || isExtractingAudio) && (
+      {(isBuffering || isExtractingAudio) && hasStarted && (
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20 bg-black/40 backdrop-blur-sm">
           <div className="w-14 h-14 border-[3px] border-accent/20 border-t-accent rounded-full animate-spin mb-4"></div>
           {isExtractingAudio && (
@@ -418,6 +417,19 @@ const Player = () => {
               Extracting High-Quality Audio... (This takes a minute)
             </p>
           )}
+        </div>
+      )}
+
+      {/* Start Overlay (Forces User Gesture) */}
+      {!hasStarted && (
+        <div 
+          onClick={handleStart}
+          className="absolute inset-0 flex flex-col items-center justify-center z-50 bg-black/90 cursor-pointer"
+        >
+          <div className="bg-accent/20 hover:bg-accent/40 rounded-full p-8 backdrop-blur-md transition-all animate-pulse">
+            <Play className="w-20 h-20 text-white fill-current opacity-90" />
+          </div>
+          <p className="text-white/70 mt-6 text-lg font-medium tracking-wider uppercase">Tap to Play</p>
         </div>
       )}
 
